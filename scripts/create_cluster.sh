@@ -17,6 +17,7 @@ k3d cluster create $cluster_name \
   --k3s-arg '--disable=traefik@server:0' \
   -p '31443-31445:31443-31445@servers:0:direct' \
   -p '32080-32082:32080-32082@servers:0:direct' \
+  -p '4466:80@servers:0:direct' \
   --k3s-arg '--flannel-backend=none@server:*' \
   --k3s-arg '--disable-network-policy@server:*' \
   --k3s-arg '--cluster-cidr=192.168.0.0/16@server:*' \

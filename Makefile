@@ -2,6 +2,7 @@
 	create-cluster \
 	check-cluster \
 	delete-cluster \
+	deploy-argocd-apps \
 	clean
 
 # --------------------
@@ -19,6 +20,7 @@ help:
 	@echo "  create-cluster         Render k3d config, create cluster, install Calico"
 	@echo "  check-cluster          Run cluster health checks"
 	@echo "  delete-cluster         Delete the k3d cluster"
+	@echo "  deploy-argocd-apps     Deploy ArgoCD applications (e.g. headlamp)"
 	@echo "  clean                  Alias for delete"
 
 # --------------------
@@ -32,6 +34,12 @@ create-cluster:
 # --------------------
 check-cluster:
 	@bash scripts/check_cluster.sh $(CLUSTER_NAME) 120
+
+# --------------------
+# Deploy ArgoCD applications
+# --------------------
+deploy-argocd-apps:
+	@bash scripts/deploy_argocd_apps.sh	
 
 # --------------------
 # Delete / clean
