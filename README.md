@@ -29,9 +29,10 @@ Chart versions used in the script:
 - calico: 3.31.4
 
 ## Services / Ports (NodePort)
-- Argo CD server: http://<k3d-host>:31443 (admin password: `admin`)
-- Kargo API: http://<k3d-host>:31444 (admin password: `admin`)
+- Argo CD server: localhost:31443 (admin password: `admin`)
+- Kargo API: localhost:31444 (admin password: `admin`)
 - Kargo external webhooks: 31445
+- Headlamp dashboard: localhost:31201 (see Notes to generate access token)
 
 Notes:
 - The script uses bcrypt hashes for stored passwords and self-signed certificates for local demo use.
