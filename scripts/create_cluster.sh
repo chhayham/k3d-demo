@@ -27,7 +27,7 @@ k3d cluster create $cluster_name \
 
 kubectl create namespace tigera-operator
 helm repo add projectcalico https://docs.tigera.io/calico/charts
-helm install calico projectcalico/tigera-operator git --version $calico_chart_version --namespace tigera-operator \
+helm install calico projectcalico/tigera-operator --version $calico_chart_version --namespace tigera-operator \
   --wait
 
 helm install cert-manager cert-manager \
