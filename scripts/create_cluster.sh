@@ -9,7 +9,7 @@ cluster_name="${1:-demo}"
 nodes="${2:-3}"
 argo_cd_chart_version=9.4.3
 argo_rollouts_chart_version=2.40.6
-cert_manager_chart_version=1.19.3
+cert_manager_chart_version=v1.19.3
 calico_chart_version=3.31.4
 
 k3d cluster create $cluster_name \
@@ -17,7 +17,7 @@ k3d cluster create $cluster_name \
   --k3s-arg '--disable=traefik@server:0' \
   -p '31443-31445:31443-31445@servers:0:direct' \
   -p '32080-32082:32080-32082@servers:0:direct' \
-  -p '4466:80@servers:0:direct' \
+  -p '31200-31202:31200-31202@servers:0:direct' \
   --k3s-arg '--flannel-backend=none@server:*' \
   --k3s-arg '--disable-network-policy@server:*' \
   --k3s-arg '--cluster-cidr=192.168.0.0/16@server:*' \

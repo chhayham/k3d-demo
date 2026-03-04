@@ -25,7 +25,7 @@ The script installs:
 Chart versions used in the script:
 - Argo CD: 9.4.3
 - Argo Rollouts: 2.40.6
-- cert-manager: 1.19.3
+- cert-manager: v1.19.3
 - calico: 3.31.4
 
 ## Services / Ports (NodePort)
