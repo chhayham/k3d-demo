@@ -39,3 +39,8 @@ Notes:
 ```bash
 k3d cluster delete <cluster-name>
 ```
+- To generate access token for Headlamp dashboard use the following command:
+```
+kubectl create token headlamp-admin -n kube-system
+```
+
