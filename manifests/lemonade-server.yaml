@@ -64,7 +64,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 200Gi
+      storage: 200Gi # adjust this value based on your needs
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -75,7 +75,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 20Gi
+      storage: 20Gi # adjust this value based on your needs
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -86,4 +86,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 10Gi # adjust this value based on your needs
