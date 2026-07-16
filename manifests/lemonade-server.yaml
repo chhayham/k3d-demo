@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lemonade-server
+spec:
+  type: ClusterIP
+  selector:
+    app: lemonade
+  ports:
+    - protocol: TCP
+      port: 13305
+      targetPort: 13305
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lemonade-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lemonade
+  template:
+    metadata:
+      labels:
+        app: lemonade
+    spec:
+      containers:
+        - name: lemonade
+          image: ghcr.io/lemonade-sdk/lemonade-server:v11.0.0
+          ports:
+            - containerPort: 13305
+          resources:
+            requests:
+              cpu: "500m"  # 0.5 CPU cores
+              memory: "512Mi"  # 512 Megabytes of RAM
+            limits:
+              cpu: "1"  # 1 CPU core
+              memory: "1Gi"  # 1 Gigabyte of RAM
+          volumeMounts:
+            - name: lemonade-cache
+              mountPath: /opt/lemonade/.cache/huggingface
+            - name: lemonade-llama
+              mountPath: /opt/lemonade/llama
+            - name: lemonade-recipe
+              mountPath: /opt/lemonade/.cache/lemonade
+      volumes:
+        - name: lemonade-cache
+          persistentVolumeClaim:
+            claimName: lemonade-cache-pvc
+        - name: lemonade-llama
+          persistentVolumeClaim:
+            claimName: lemonade-llama-pvc
+        - name: lemonade-recipe
+          persistentVolumeClaim:
+            claimName: lemonade-recipe-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lemonade-cache-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Gi # adjust this value based on your needs
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lemonade-llama-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi # adjust this value based on your needs
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lemonade-recipe-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi # adjust this value based on your needs
