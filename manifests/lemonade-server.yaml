@@ -36,7 +36,7 @@ spec:
               memory: "512Mi"  # 512 Megabytes of RAM
             limits:
               cpu: "1"  # 1 CPU core
-              memory: "1Gi"  # 1 Gigabyte of RAM
+              memory: "96Gi"  # 96 Gigabytes of RAM
           volumeMounts:
             - name: lemonade-cache
               mountPath: /opt/lemonade/.cache/huggingface
