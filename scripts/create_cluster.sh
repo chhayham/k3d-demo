@@ -5,7 +5,7 @@
 # -x: Print each command before executing it (useful for debugging)
 set -euox pipefail
 
-cluster_name="${1:-demo}"
+cluster_name="${USER:-demo}"
 nodes="${2:-3}"
 argo_cd_chart_version=9.4.3
 argo_rollouts_chart_version=2.40.6
@@ -72,4 +72,13 @@ helm install kargo \
   --set api.adminAccount.tokenSigningKey=iwishtowashmyirishwristwatch \
   --set externalWebhooksServer.service.type=NodePort \
   --set externalWebhooksServer.service.nodePort=31445 \
+  --wait
+
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --create-namespace \
+  --namespace monitoring \
+  --set grafana.adminPassword=admin \
+  --set prometheus.prometheusSpec.retention=24h
+  --set service.type=NodePort \
+  --set service.nodePort=31445 \
   --wait
