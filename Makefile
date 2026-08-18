@@ -21,7 +21,7 @@ help:
 	@echo "  check-cluster          Run cluster health checks"
 	@echo "  delete-cluster         Delete the k3d cluster"
 	@echo "  deploy-argocd-apps     Deploy ArgoCD applications (e.g. headlamp)"
-	@echo "  clean                  Alias for delete"
+	@echo "  clean                  Alias for delete-cluster"
 
 # --------------------
 # Create cluster
