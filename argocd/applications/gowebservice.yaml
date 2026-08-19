@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gowebservice
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: gowebservice
+    repoURL: https://github.com/chhayham/GoWebService/helm-chart
+    targetRevision: 0.1.0
+    helm:
+      releaseName: gowebservice
+      valuesObject:
+        service:
+          type: NodePort
+          port: 8080
+          nodePort: 38080
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: gowebservice
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
