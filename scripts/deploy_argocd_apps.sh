@@ -2,5 +2,5 @@
 set -euo pipefail
 
 kubectl apply -f argocd/applications/headlamp.yaml
-kubectl apply -f argocd/applications/harbor.yaml
+# kubectl apply -f argocd/applications/harbor.yaml
 kubectl apply -f argocd/applications/gowebservice.yaml
