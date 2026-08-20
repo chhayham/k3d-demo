@@ -72,13 +72,12 @@ helm install kargo \
   --set api.adminAccount.tokenSigningKey=iwishtowashmyirishwristwatch \
   --set externalWebhooksServer.service.type=NodePort \
   --set externalWebhooksServer.service.nodePort=31445 \
-  --wait
+  # --wait
 
-helm install prometheus prometheus-community/kube-prometheus-stack \
-  --create-namespace \
-  --namespace monitoring \
-  --set grafana.adminPassword=admin \
-  --set prometheus.prometheusSpec.retention=24h
-  --set service.type=NodePort \
-  --set service.nodePort=31445 \
-  --wait
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# helm repo update
+# helm install prometheus prometheus-community/kube-prometheus-stack \
+#   --create-namespace \
+#   --namespace monitoring \
+#   --set grafana.adminPassword=admin \
+#   --set prometheus.prometheusSpec.retention=24h

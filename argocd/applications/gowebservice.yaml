@@ -6,16 +6,16 @@ metadata:
 spec:
   project: default
   source:
-    chart: gowebservice
-    repoURL: https://github.com/chhayham/GoWebService/helm-chart
-    targetRevision: 0.1.0
+    repoURL: 'https://github.com/chhayham/GoWebService'
+    targetRevision: main          # Or a specific branch, commit hash, or tag
+    path: helm-chart  # The folder path in Git where Chart.yam
     helm:
       releaseName: gowebservice
       valuesObject:
         service:
           type: NodePort
           port: 8080
-          nodePort: 38080
+          nodePort: 31202 
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gowebservice

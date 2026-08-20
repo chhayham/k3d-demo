@@ -70,9 +70,4 @@ delete-cluster:
 	@echo ">>> Deleting cluster $(CLUSTER_NAME)..."
 	@bash scripts/delete_cluster.sh $(CLUSTER_NAME)
 
-clean: delete-cluster.PHONY: help \
-	create-cluster \
-	check-cluster \
-	delete-cluster \
-	deploy-argocd-apps \
-	clean
+clean: delete-cluster
