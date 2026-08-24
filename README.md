@@ -39,6 +39,8 @@ Chart versions used in the script:
 - Kargo API: localhost:31444 (admin password: `admin`)
 - Kargo external webhooks: 31445
 - Headlamp dashboard: localhost:31201 (see Notes to generate access token)
+- Prometheus: localhost:30903
+- Alertmanager: localhost:30904
 
 Notes:
 

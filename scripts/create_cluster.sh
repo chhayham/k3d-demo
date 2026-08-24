@@ -15,9 +15,7 @@ calico_chart_version=3.31.4
 k3d cluster create $cluster_name \
   --no-lb \
   --k3s-arg '--disable=traefik@server:0' \
-  -p '31443-31445:31443-31445@servers:0:direct' \
-  -p '32080-32082:32080-32082@servers:0:direct' \
-  -p '31200-31202:31200-31202@servers:0:direct' \
+  -p '30000-32767:30000-32767@servers:0:direct' \
   --k3s-arg '--flannel-backend=none@server:*' \
   --k3s-arg '--disable-network-policy@server:*' \
   --k3s-arg '--cluster-cidr=192.168.0.0/16@server:*' \
@@ -74,11 +72,8 @@ helm install kargo \
   --set externalWebhooksServer.service.nodePort=31445 \
   --wait
 
-helm install prometheus prometheus-community/kube-prometheus-stack \
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   --create-namespace \
   --namespace monitoring \
-  --set grafana.adminPassword=admin \
-  --set prometheus.prometheusSpec.retention=24h
   --set service.type=NodePort \
-  --set service.nodePort=31445 \
-  --wait
+  --set servicePerReplica.type=NodePort \
