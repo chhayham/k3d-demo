@@ -69,3 +69,5 @@ reset: delete-cluster create-cluster
 delete-cluster:
 	@echo ">>> Deleting cluster $(CLUSTER_NAME)..."
 	@bash scripts/delete_cluster.sh $(CLUSTER_NAME)
+
+clean: delete-cluster
