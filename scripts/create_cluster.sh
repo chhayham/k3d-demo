@@ -6,29 +6,32 @@
 set -euox pipefail
 
 cluster_name="${USER:-demo}"
-nodes="${2:-3}"
+# nodes="${2:-3}"
+nodes="1"
 argo_cd_chart_version=9.4.3
 argo_rollouts_chart_version=2.40.6
 cert_manager_chart_version=v1.19.3
-calico_chart_version=3.31.4
+calico_chart_version=v3.31.4
 
-k3d cluster create $cluster_name \
-  --no-lb \
-  --k3s-arg '--disable=traefik@server:0' \
-  -p '30000-32767:30000-32767@servers:0:direct' \
-  --k3s-arg '--flannel-backend=none@server:*' \
-  --k3s-arg '--disable-network-policy@server:*' \
-  --k3s-arg '--cluster-cidr=192.168.0.0/16@server:*' \
-  --servers 1 \
-  --agents $nodes \
-  --wait
+# k3d cluster create $cluster_name \
+#   --no-lb \
+#   --k3s-arg '--disable=traefik@server:0' \
+#   -p '31443-31445:31443-31445@servers:0:direct' \
+#   -p '32080-32082:32080-32082@servers:0:direct' \
+#   -p '31200-31202:31200-31202@servers:0:direct' \
+#   --k3s-arg '--flannel-backend=none@server:*' \
+#   --k3s-arg '--disable-network-policy@server:*' \
+#   --k3s-arg '--cluster-cidr=192.168.65.0/24@server:*' \
+#   --servers 1 \
+#   --agents $nodes \
+#   --wait
 
-kubectl create namespace tigera-operator
+kubectl create namespace tigera-operator --dry-run=client -o yaml | kubectl apply -f -
 helm repo add projectcalico https://docs.tigera.io/calico/charts
-helm install calico projectcalico/tigera-operator --version $calico_chart_version --namespace tigera-operator \
+helm upgrade --install calico projectcalico/tigera-operator --version $calico_chart_version --namespace tigera-operator \
   --wait
 
-helm install cert-manager cert-manager \
+helm upgrade --install cert-manager cert-manager \
   --repo https://charts.jetstack.io \
   --version $cert_manager_chart_version \
   --namespace cert-manager \
@@ -36,7 +39,7 @@ helm install cert-manager cert-manager \
   --set crds.enabled=true \
   --wait
 
-helm install argocd argo-cd \
+helm upgrade --install argocd argo-cd \
   --repo https://argoproj.github.io/argo-helm \
   --version $argo_cd_chart_version \
   --namespace argocd \
@@ -52,7 +55,7 @@ helm install argocd argo-cd \
   --set 'server.extensions.extensionList[0].env[0].value=https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar' \
   --wait
 
-helm install argo-rollouts argo-rollouts \
+helm upgrade --install argo-rollouts argo-rollouts \
   --repo https://argoproj.github.io/argo-helm \
   --version $argo_rollouts_chart_version \
   --create-namespace \
@@ -60,7 +63,7 @@ helm install argo-rollouts argo-rollouts \
   --wait
 
 # Password is 'admin'
-helm install kargo \
+helm upgrade --install kargo \
   oci://ghcr.io/akuity/kargo-charts/kargo \
   --namespace kargo \
   --create-namespace \
@@ -72,8 +75,16 @@ helm install kargo \
   --set externalWebhooksServer.service.nodePort=31445 \
   --wait
 
-helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   --create-namespace \
   --namespace monitoring \
-  --set service.type=NodePort \
-  --set servicePerReplica.type=NodePort \
+  --set prometheus.service.type=NodePort \
+  --set prometheus.service.nodePort=30904 \
+  --set prometheus.servicePerReplica.type=NodePort \
+  --set prometheus.servicePerReplica.nodePort=30905 \
+  --set prometheusOperator.admissionWebhooks.enabled=true \
+  --set prometheusOperator.admissionWebhooks.certManager.enabled=true \
+  --set grafana.service.type=NodePort \
+  --set grafana.service.nodePort=30906 \
+  --set grafana.adminPassword="admin" \
+  --wait

@@ -4,7 +4,7 @@
 # Configuration
 # --------------------
 CLUSTER_NAME ?= demo
-NODES ?= 3
+NODES ?= 1
 
 # --------------------
 # Helpers
