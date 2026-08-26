@@ -5,26 +5,32 @@
 # -x: Print each command before executing it (useful for debugging)
 set -euox pipefail
 
-cluster_name="${USER:-demo}"
+cluster_name="${1:-demo}"
 # nodes="${2:-3}"
 nodes="1"
 argo_cd_chart_version=9.4.3
 argo_rollouts_chart_version=2.40.6
 cert_manager_chart_version=v1.19.3
 calico_chart_version=v3.31.4
+kube_prometheus_stack_chart_version=v0.93.1
 
-# k3d cluster create $cluster_name \
-#   --no-lb \
-#   --k3s-arg '--disable=traefik@server:0' \
-#   -p '31443-31445:31443-31445@servers:0:direct' \
-#   -p '32080-32082:32080-32082@servers:0:direct' \
-#   -p '31200-31202:31200-31202@servers:0:direct' \
-#   --k3s-arg '--flannel-backend=none@server:*' \
-#   --k3s-arg '--disable-network-policy@server:*' \
-#   --k3s-arg '--cluster-cidr=192.168.65.0/24@server:*' \
-#   --servers 1 \
-#   --agents $nodes \
-#   --wait
+if k3d cluster list 2>/dev/null | awk '{print $1}' | grep -qx "$cluster_name"; then
+  echo "k3d cluster '$cluster_name' already exists"
+else
+  k3d cluster create $cluster_name \
+    --no-lb \
+    --k3s-arg '--disable=traefik@server:0' \
+    -p '31443-31445:31443-31445@servers:0:direct' \
+    -p '32080-32082:32080-32082@servers:0:direct' \
+    -p '31200-31202:31200-31202@servers:0:direct' \
+    -p '30904-30908:30904-30908@servers:0:direct' \
+    --k3s-arg '--flannel-backend=none@server:*' \
+    --k3s-arg '--disable-network-policy@server:*' \
+    --k3s-arg '--cluster-cidr=192.168.65.0/24@server:*' \
+    --servers 1 \
+    --agents $nodes \
+    --wait
+fi
 
 kubectl create namespace tigera-operator --dry-run=client -o yaml | kubectl apply -f -
 helm repo add projectcalico https://docs.tigera.io/calico/charts
@@ -76,6 +82,7 @@ helm upgrade --install kargo \
   --wait
 
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+  --version $kube_prometheus_stack_chart_version \
   --create-namespace \
   --namespace monitoring \
   --set prometheus.service.type=NodePort \
