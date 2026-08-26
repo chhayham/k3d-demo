@@ -12,6 +12,12 @@ Small demo for running Argo CD, Argo Rollouts, Cert-Manager, Calico, Kargo and k
 - helm
 - make
 
+## VM resource settings
+
+On macOS the cluster runs inside the Rancher Desktop VM, so its resources must be sized for the whole stack (Argo CD, Argo Rollouts, Kargo, Harbor, Calico, monitoring, …):
+
+- **Rancher Desktop**: Preferences > Virtual Machine — set **CPUs: 2** and **Memory: 8 GB** (minimum recommended), then restart the VM.
+
 ## Quick start
 
 The recommended way is to use the Makefile:
@@ -93,9 +99,3 @@ k3d cluster delete <cluster-name>
 ```bash
 kubectl create token headlamp-admin -n kube-system
 ```
-
-## VM resource settings
-
-On macOS the cluster runs inside the Rancher Desktop VM, so its resources must be sized for the whole stack (Argo CD, Argo Rollouts, Kargo, Harbor, Calico, monitoring, …):
-
-- **Rancher Desktop**: Preferences > Virtual Machine — set **CPUs: 4** and **Memory: 10 GB** (minimum recommended), then restart the VM.
