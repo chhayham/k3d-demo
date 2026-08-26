@@ -12,7 +12,7 @@ argo_cd_chart_version=9.4.3
 argo_rollouts_chart_version=2.40.6
 cert_manager_chart_version=v1.19.3
 calico_chart_version=v3.31.4
-kube_prometheus_stack_chart_version=v0.93.1
+kube_prometheus_stack_chart_version=88.5.4
 
 if k3d cluster list 2>/dev/null | awk '{print $1}' | grep -qx "$cluster_name"; then
   echo "k3d cluster '$cluster_name' already exists"
@@ -81,6 +81,7 @@ helm upgrade --install kargo \
   --set externalWebhooksServer.service.nodePort=31445 \
   --wait
 
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   --version $kube_prometheus_stack_chart_version \
   --create-namespace \
@@ -94,4 +95,6 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
   --set grafana.service.type=NodePort \
   --set grafana.service.nodePort=30906 \
   --set grafana.adminPassword="admin" \
+  --set alertmanager.service.type=NodePort \
+  --set alertmanager.service.nodePort=30907 \
   --wait
