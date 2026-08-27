@@ -81,7 +81,7 @@ GitOps applications (deployed to Argo CD by `scripts/deploy_argocd_apps.sh`):
 | Grafana | http://localhost:30906 | user `admin`, password `admin` |
 | Alertmanager | http://localhost:30907 | |
 | GoWebService | http://localhost:38080 | |
-| Harbor | — | ClusterIP by default; expose a NodePort if needed |
+| Harbor | https://localhost:30003 | user `admin`, password `admin` |
 
 ## Notes
 

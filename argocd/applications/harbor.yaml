@@ -11,6 +11,15 @@ spec:
     targetRevision: 2.15.0
     helm:
       releaseName: harbor
+      parameters:
+       - name: "expose.type"
+         value: nodePort 
+       - name: "expose.nodePort.ports.http.nodePort"
+         value: 30002
+       - name: "expose.nodePort.ports.https.nodePort"
+         value: 30003
+       - name: "harborAdminPassword"
+         value: admin
   destination:
     server: https://kubernetes.default.svc
     namespace: harbor
