@@ -19,12 +19,25 @@ spec:
        - name: "expose.nodePort.ports.https.nodePort"
          value: "30003"
        - name: "harborAdminPassword"
-         value: admin
+         value: "admin"
        - name: "expose.tls.auto.commonName"
-         value: "localhost"
+         value: "*.local"
+       - name: "persistence.enabled"
+         value: "false"
+       - name: "redis.internal.livenessProbe.initialDelaySeconds"
+         value: "30"
+       - name: "redis.internal.livenessProbe.periodSeconds"
+         value: "10"
+       - name: "redis.internal.readinessProbe.initialDelaySeconds"
+         value: "30"
+       - name: "redis.internal.readinessProbe.periodSeconds" 
+         value: "10"
   destination:
     server: https://kubernetes.default.svc
     namespace: harbor
   syncPolicy:
     syncOptions:
     - CreateNamespace=true
+    - ApplyOutOfSyncOnly=true
+    automated:
+      selfHeal: true

@@ -85,6 +85,8 @@ GitOps applications (deployed to Argo CD by `scripts/deploy_argocd_apps.sh`):
 
 ## Notes
 
+- If running arm64 MacOS, ensure rosetta is enabled in Rancher Desktop.
+
 - The scripts use bcrypt hashes for stored passwords and self-signed certificates for local demo use.
 - To remove the cluster:
 
