@@ -6,8 +6,8 @@
 set -euox pipefail
 
 cluster_name="${1:-demo}"
-# nodes="${2:-3}"
-nodes="1"
+nodes="${2:-3}"
+# nodes="1"
 argo_cd_chart_version=9.4.3
 argo_rollouts_chart_version=2.40.6
 cert_manager_chart_version=v1.19.3
