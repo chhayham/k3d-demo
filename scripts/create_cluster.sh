@@ -25,6 +25,7 @@ else
     -p '31200-31202:31200-31202@servers:0:direct' \
     -p '30904-30908:30904-30908@servers:0:direct' \
     -p '30002-30004:30002-30004@servers:0:direct' \
+    -p '31080-31080:31080-31080@servers:0:direct' \
     --k3s-arg '--flannel-backend=none@server:*' \
     --k3s-arg '--disable-network-policy@server:*' \
     --k3s-arg '--cluster-cidr=192.168.65.0/24@server:*' \
