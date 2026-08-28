@@ -7,3 +7,5 @@ kubectl apply -f argocd/applications/harbor.yaml
 kubectl apply -f manifests/headlamp_sa.yaml
 
 kubectl apply -f argocd/applications/gowebservice.yaml
+
+kubectl apply -f argocd/applications/dex.yaml
