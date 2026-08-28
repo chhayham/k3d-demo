@@ -1,6 +1,6 @@
 # k3d_demo
 
-Small demo for running Argo CD, Argo Rollouts, Cert-Manager, Calico, Kargo and kube-prometheus-stack on a local k3d cluster.
+Small demo for running Argo CD, Argo Rollouts, Cert-Manager, Calico, Kargo, Dex, and kube-prometheus-stack on a local k3d cluster.
 
 > **Note:** This project is intended for demo purposes only. It is not hardened for production use — it ships default credentials (e.g. `admin`/`admin`), self-signed certificates, and wide NodePort exposure suitable only for local experimentation.
 
@@ -68,6 +68,7 @@ GitOps applications (deployed to Argo CD by `scripts/deploy_argocd_apps.sh`):
 - Headlamp 0.40.0 — Kubernetes dashboard
 - Harbor 2.15.0 — container registry
 - GoWebService 0.1.0 — sample Go web service
+- Dex 0.24.1 -- OpenID Connect identity provider
 
 ## Services / Ports (NodePort)
 
@@ -82,6 +83,7 @@ GitOps applications (deployed to Argo CD by `scripts/deploy_argocd_apps.sh`):
 | Alertmanager | http://localhost:30907 | |
 | GoWebService | http://localhost:31080 | |
 | Harbor | https://localhost:30003 | user `admin`, password `admin` |
+| Dex | http://localhost:30056 | user `admin`, password `admin` |
 
 ## Notes
 
