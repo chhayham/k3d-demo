@@ -69,7 +69,9 @@ spec:
               groups:
                 - "team-a"
                 - "team-a/admins"
-              userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"  
+              userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+          oauth2:
+            passwordConnector: local  
   destination:
     server: https://kubernetes.default.svc
     namespace: dex

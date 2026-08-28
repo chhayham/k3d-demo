@@ -103,3 +103,15 @@ k3d cluster delete <cluster-name>
 ```bash
 kubectl create token headlamp-admin -n kube-system
 ```
+
+- To test dex from terminal use the following command:
+
+```bash
+curl -L -X POST 'http://localhost:30056/dex/token' \
+-H 'Authorization: Basic ZXhhbXBsZS1hcHA6WlhoaGJYQnNaUzFoY0hBdGMyVmpjbVYw' \
+-H 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'grant_type=password' \
+--data-urlencode 'scope=openid' \
+--data-urlencode 'username=admin@example.com' \
+--data-urlencode 'password=password'
+```
