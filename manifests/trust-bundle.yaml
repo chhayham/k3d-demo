@@ -1,0 +1,16 @@
+# WARNING: This IS NOT SAFE to do in production because it can cause issues when we want
+# to rotate the CA certificate.
+# In production, you should copy trusted roots to a separate ConfigMap or Secret
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: example-bundle
+spec:
+  sources:
+  - useDefaultCAs: true
+  - secret:
+      name: "trust-manager-example-ca-secret"
+      key: "tls.crt"
+  target:
+    configMap:
+      key: "trust-bundle.pem"
