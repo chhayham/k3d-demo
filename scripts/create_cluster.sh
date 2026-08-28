@@ -48,6 +48,12 @@ helm upgrade --install cert-manager cert-manager \
   --set crds.enabled=true \
   --wait
 
+helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager \
+  --namespace cert-manager \
+  --wait
+kubectl apply -f manifests/self-signed-cert-issuer.yaml
+kubectl apply -f manifests/trust-bundle.yaml
+
 helm upgrade --install argocd argo-cd \
   --repo https://argoproj.github.io/argo-helm \
   --version $argo_cd_chart_version \
