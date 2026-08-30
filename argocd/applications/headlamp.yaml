@@ -35,7 +35,7 @@ spec:
   source:
     repoURL: https://github.com/chhayham/k3d_demo
     path: helm/ingressroute
-    targetRevision: 0.1.0
+    targetRevision: main
     helm:
       releaseName: route-headlamp
       valuesObject:
