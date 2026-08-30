@@ -5,15 +5,15 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    chart: headlamp
-    repoURL: https://kubernetes-sigs.github.io/headlamp
-    targetRevision: 0.40.0
-    helm:
-      releaseName: headlamp
-      valuesObject:
-        service:
-          port: 80
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/headlamp
+      chart: headlamp
+      targetRevision: 0.40.0
+      helm:
+        releaseName: headlamp
+        valuesObject:
+          service:
+            port: 80
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp
@@ -23,29 +23,30 @@ spec:
     - ApplyOutOfSyncOnly=true
     automated:
       selfHeal: true
-
----
+--- 
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ingress-headlamp
+  name: route-headlamp
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://github.com/chhayham/k3d-demo
-    path: helm/ingressroute
-    targetRevision: main
-    helm:
-      releaseName: route-headlamp
-      valuesObject:
-        namespace: headlamp
-        hostname: k8s.localhost
-        entryPoints:
-          - web
-        services:
-          - name: route-headlamp
-            port: 80
+  sources:
+    - repoURL: https://github.com/chhayham/k3d-demo
+      path: helm/ingressroute
+      targetRevision: main
+      helm:
+        releaseName: route-headlamp
+        valuesObject:
+          ingressRoutes:
+            - name: headlamp
+              namespace: headlamp
+              hostname: k8s.localhost
+              entryPoints:
+                - web
+              services:
+                - name: headlamp
+                  port: 80    
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp

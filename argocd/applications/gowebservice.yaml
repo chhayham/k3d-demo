@@ -5,15 +5,15 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://github.com/chhayham/GoWebService
-    path: helm-chart
-    targetRevision: v1.0.7
-    helm:
-      releaseName: gowebservice
-      valuesObject:
-        service:
-          port: 8080
+  sources:
+    - repoURL: https://github.com/chhayham/GoWebService
+      path: helm-chart
+      targetRevision: v1.0.7
+      helm:
+        releaseName: gowebservice
+        valuesObject:
+          service:
+            port: 8080
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gowebservice
@@ -23,28 +23,30 @@ spec:
     - ApplyOutOfSyncOnly=true
     automated:
       selfHeal: true
----
+--- 
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ingress-gowebservice
+  name: route-gowebservice
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: https://github.com/chhayham/k3d-demo
-    path: helm/ingressroute
-    targetRevision: main
-    helm:
-      releaseName: route-gowebservice
-      valuesObject:
-        namespace: gowebservice
-        hostname: goweb.localhost
-        entryPoints:
-          - web
-        services:
-          - name: gowebservice
-            port: 8080
+  sources:
+    - repoURL: https://github.com/chhayham/k3d-demo
+      path: helm/ingressroute
+      targetRevision: main
+      helm:
+        releaseName: route-gowebwervice
+        valuesObject:
+          ingressRoutes:
+            - name: gowebservice
+              namespace: gowebservice
+              hostname: goweb.localhost
+              entryPoints:
+                - web
+              services:
+                - name: gowebservice
+                  port: 8080    
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gowebservice
