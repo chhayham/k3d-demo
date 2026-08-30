@@ -114,3 +114,4 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
   --set prometheusOperator.admissionWebhooks.certManager.enabled=true \
   --set grafana.adminPassword="admin" \
   --wait
+kubectl apply -f manifests/ingressroute-monitoring.yaml
