@@ -13,9 +13,39 @@ spec:
       releaseName: headlamp
       valuesObject:
         service:
-          type: NodePort
           port: 80
-          nodePort: 31201
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: headlamp
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - ApplyOutOfSyncOnly=true
+    automated:
+      selfHeal: true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-headlamp
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chhayham/k3d_demo
+    path: helm/ingressroute
+    targetRevision: 0.1.0
+    helm:
+      releaseName: route-headlamp
+      valuesObject:
+        namespace: headlamp
+        hostname: k8s.localhost
+        entryPoints:
+          - web
+        services:
+          - name: route-headlamp
+            port: 80
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp

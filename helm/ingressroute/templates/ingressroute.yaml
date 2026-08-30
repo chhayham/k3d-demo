@@ -1,0 +1,27 @@
+{{- range .Values.ingressRoutes }}
+{{- $root := . }}
+{{- if $root.name }}
+---
+apiVersion: {{ $.Values.apiVersion }}
+kind: IngressRoute
+metadata:
+  name: {{ $root.name }}
+  namespace: {{ $root.namespace }}
+  labels:
+    {{- include "ingressroute.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $root.name }}
+spec:
+  entryPoints:
+    {{- range $root.entryPoints }}
+    - {{ . }}
+    {{- end }}
+  routes:
+    - match: Host(`{{ $root.hostname }}`)
+      kind: Rule
+      services:
+        {{- range $root.services }}
+        - name: {{ .name }}
+          port: {{ .port }}
+        {{- end }}
+{{- end }}
+{{- end }}
