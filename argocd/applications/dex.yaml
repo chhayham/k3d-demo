@@ -14,7 +14,7 @@ spec:
       valuesObject:
         https:
           # -- Enable the HTTPS endpoint.  Requires certs
-          enabled: false
+          enabled: true
         service:
           type: NodePort
           ports:
