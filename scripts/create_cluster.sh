@@ -105,20 +105,12 @@ helm upgrade --install kargo \
   --wait
 kubectl apply -f manifests/ingressroute-kargo.yaml
 
-# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-# helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-#   --version $kube_prometheus_stack_chart_version \
-#   --create-namespace \
-#   --namespace monitoring \
-#   --set prometheus.service.type=NodePort \
-#   --set prometheus.service.nodePort=30904 \
-#   --set prometheus.servicePerReplica.type=NodePort \
-#   --set prometheus.servicePerReplica.nodePort=30905 \
-#   --set prometheusOperator.admissionWebhooks.enabled=true \
-#   --set prometheusOperator.admissionWebhooks.certManager.enabled=true \
-#   --set grafana.service.type=NodePort \
-#   --set grafana.service.nodePort=30906 \
-#   --set grafana.adminPassword="admin" \
-#   --set alertmanager.service.type=NodePort \
-#   --set alertmanager.service.nodePort=30907 \
-#   --wait
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+  --version $kube_prometheus_stack_chart_version \
+  --create-namespace \
+  --namespace monitoring \
+  --set prometheusOperator.admissionWebhooks.enabled=true \
+  --set prometheusOperator.admissionWebhooks.certManager.enabled=true \
+  --set grafana.adminPassword="admin" \
+  --wait
