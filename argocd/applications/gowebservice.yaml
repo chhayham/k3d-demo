@@ -32,7 +32,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/chhayham/k3d_demo
+    repoURL: https://github.com/chhayham/k3d-demo
     path: helm/ingressroute
     targetRevision: main
     helm:
