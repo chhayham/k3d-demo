@@ -13,9 +13,38 @@ spec:
       releaseName: gowebservice
       valuesObject:
         service:
-          type: NodePort
           port: 8080
-          nodePort: 31080
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: gowebservice
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - ApplyOutOfSyncOnly=true
+    automated:
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-gowebservice
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chhayham/k3d_demo
+    path: helm/ingressroute
+    targetRevision: 0.1.0
+    helm:
+      releaseName: route-gowebservice
+      valuesObject:
+        namespace: gowebservice
+        hostname: goweb.localhost
+        entryPoints:
+          - web
+        services:
+          - name: gowebservice
+            port: 8080
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gowebservice

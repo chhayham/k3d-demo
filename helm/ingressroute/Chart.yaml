@@ -1,0 +1,15 @@
+apiVersion: v2
+name: ingressroute
+description: A Helm chart to deploy Traefik IngressRoute resources
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://traefik.io/
+sources:
+  - https://github.com/traefik/traefik
+keywords:
+  - traefik
+  - ingressroute
+  - ingress
+maintainers:
+  - name: dev
