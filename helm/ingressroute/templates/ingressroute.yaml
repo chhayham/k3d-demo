@@ -23,5 +23,7 @@ spec:
         - name: {{ .name }}
           port: {{ .port }}
         {{- end }}
+  tls:
+    certResolver: {{ $root.certResolver }}
 {{- end }}
 {{- end }}

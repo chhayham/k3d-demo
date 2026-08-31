@@ -43,10 +43,11 @@ spec:
               namespace: gowebservice
               hostname: goweb.localhost
               entryPoints:
-                - web
+                - websecure
               services:
                 - name: gowebservice
-                  port: 8080    
+                  port: 8080
+              certResolver: le    
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gowebservice
