@@ -18,6 +18,7 @@ ingressRoutes: []
   #   services:
   #     - name: argocd-server
   #       port: 80
+  #   certResolver: le
 
   # # Kargo API
   # - name: kargo-api

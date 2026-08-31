@@ -43,7 +43,8 @@ helm upgrade --install traefik traefik/traefik \
   --set ingressRoute.dashboard.matchRule='Host(`dashboard.localhost`)' \
   --set ingressRoute.dashboard.entryPoints={web} \
   --set providers.kubernetesGateway.enabled=true \
-  --set gateway.listeners.web.namespacePolicy.from=All
+  --set gateway.listeners.web.namespacePolicy.from=All\
+  --set="additionalArguments={--certificatesresolvers.le.acme.email=chhayham@gmail.com,--certificatesresolvers.le.acme.storage=/data/acme.json,--certificatesresolvers.le.acme.httpchallenge.entrypoint=web}"
 
 # kubectl create namespace tigera-operator --dry-run=client -o yaml | kubectl apply -f -
 # helm repo add projectcalico https://docs.tigera.io/calico/charts

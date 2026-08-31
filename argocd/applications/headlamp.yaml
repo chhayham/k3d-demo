@@ -43,10 +43,11 @@ spec:
               namespace: headlamp
               hostname: k8s.localhost
               entryPoints:
-                - web
+                - websecure
               services:
                 - name: headlamp
-                  port: 80    
+                  port: 80
+              certResolver: le    
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp
