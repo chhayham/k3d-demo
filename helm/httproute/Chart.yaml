@@ -1,0 +1,18 @@
+apiVersion: v2
+name: httproute
+description: A Helm chart to deploy Kubernetes Gateway API HTTPRoute resources
+type: application
+version: 0.2.0
+appVersion: "0.1.0"
+home: https://github.com/chhayham/k3d-demo/tree/main
+sources:
+  - https://github.com/traefik/traefik
+  - https://gateway-api.sigs.k8s.io/reference/api-types/httproute
+keywords:
+  - traefik
+  - gateway-api
+  - httproute
+  - ingress
+maintainers:
+  - name: dev
+
