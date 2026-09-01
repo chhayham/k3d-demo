@@ -1,0 +1,37 @@
+httpRoutes:  
+  - name: kube-prometheus-stack-prometheus-http
+    namespace: monitoring
+    parentRefs:
+        - name: traefik-gateway # Gateway created by Traefik when the Gateway API provider is enabled
+          sectionName: websecure
+          namespace: traefik
+    hostnames:
+      - "monitoring.localhost"
+    rules:
+      - backendRefs:
+        - name: kube-prometheus-stack-prometheus
+          port: 9090
+  - name: kube-prometheus-stack-grafana
+    namespace: monitoring
+    parentRefs:
+      - name: traefik-gateway 
+        sectionName: websecure
+        namespace: traefik
+    hostnames:
+      - "grafana.localhost"
+    rules:
+      - backendRefs:
+        - name: kube-prometheus-stack-grafana
+          port: 80
+  - name: kube-prometheus-stack-alertmanager
+    namespace: monitoring
+    parentRefs:
+      - name: traefik-gateway 
+        sectionName: websecure
+        namespace: traefik
+    hostnames:
+      - "alertmanager.localhost"
+    rules:
+      - backendRefs:
+        - name: kube-prometheus-stack-alertmanager
+          port: 9093    
