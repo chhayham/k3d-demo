@@ -33,21 +33,25 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/chhayham/k3d-demo
-      path: helm/ingressroute
+      path: helm/httproute
       targetRevision: main
       helm:
         releaseName: route-gowebwervice
         valuesObject:
-          ingressRoutes:
+          httpRoutes:
             - name: gowebservice
               namespace: gowebservice
-              hostname: goweb.localhost
-              entryPoints:
-                - websecure
-              services:
-                - name: gowebservice
-                  port: 8080
-              certResolver: le    
+              parentRefs:
+                - name: traefik-gateway
+                  sectionName: websecure
+                  namespace: traefik
+              hostnames:
+                - goweb.localhost
+              rules:
+                - backendRefs:
+                    - name: gowebservice
+                      port: 8080
+              certResolver: le
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gowebservice
@@ -57,3 +61,4 @@ spec:
     - ApplyOutOfSyncOnly=true
     automated:
       selfHeal: true
+

@@ -33,21 +33,24 @@ spec:
   project: default
   sources:
     - repoURL: https://github.com/chhayham/k3d-demo
-      path: helm/ingressroute
+      path: helm/httproute
       targetRevision: main
       helm:
         releaseName: route-headlamp
         valuesObject:
-          ingressRoutes:
+          httpRoutes:
             - name: headlamp
               namespace: headlamp
-              hostname: k8s.localhost
-              entryPoints:
-                - websecure
-              services:
-                - name: headlamp
-                  port: 80
-              certResolver: le    
+              parentRefs:
+                - name: traefik-gateway
+                  sectionName: websecure
+                  namespace: traefik
+              hostnames:
+                - k8s.localhost
+              rules:
+                - backendRefs:
+                    - name: headlamp
+                      port: 80
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp
@@ -57,3 +60,4 @@ spec:
     - ApplyOutOfSyncOnly=true
     automated:
       selfHeal: true
+

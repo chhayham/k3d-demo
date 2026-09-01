@@ -1,0 +1,48 @@
+{{- range .Values.httpRoutes }}
+{{- if .name }}
+---
+apiVersion: {{ $.Values.apiVersion }}
+kind: HTTPRoute
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+  labels:
+    {{- include "httproute.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ .name }}
+spec:
+  parentRefs:
+    {{- range .parentRefs }}
+    - name: {{ .name }}
+      {{- with .namespace }}
+      namespace: {{ . }}
+      {{- end }}
+      {{- with .sectionName }}
+      sectionName: {{ . }}
+      {{- end }}
+    {{- end }}
+  {{- with .hostnames }}
+  hostnames:
+    {{- range . }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range $rule := .rules }}
+    - backendRefs:
+        {{- range $rule.backendRefs }}
+        - name: {{ .name }}
+          port: {{ .port }}
+          {{- with .kind }}
+          kind: {{ . }}
+          {{- end }}
+          {{- with .namespace }}
+          namespace: {{ . }}
+          {{- end }}
+        {{- end }}
+      {{- with $rule.matches }}
+      matches:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}
