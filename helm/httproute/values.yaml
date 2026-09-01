@@ -9,16 +9,16 @@
 apiVersion: gateway.networking.k8s.io/v1
 
 # List of HTTPRoute resources to create.
-httpRoutes: #[]
-  - name: kargo-api-http
-    namespace: kargo
-    parentRefs:
-        - name: traefik-gateway # Gateway created by Traefik when the Gateway API provider is enabled
-          sectionName: websecure
-          namespace: traefik
-    hostnames:
-      - "kargo.localhost"
-    rules:
-      - backendRefs:
-        - name: kargo-api
-          port: 80
+httpRoutes: []
+  # - name: kargo-api-http
+  #   namespace: kargo
+  #   parentRefs:
+  #       - name: traefik-gateway # Gateway created by Traefik when the Gateway API provider is enabled
+  #         sectionName: websecure
+  #         namespace: traefik
+  #   hostnames:
+  #     - "kargo.localhost"
+  #   rules:
+  #     - backendRefs:
+  #       - name: kargo-api
+  #         port: 80

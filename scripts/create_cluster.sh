@@ -59,20 +59,6 @@ helm upgrade --install traefik traefik/traefik \
   --version $traefik_chart_version \
   -f helm/traefik/values.yaml \
   --wait
-  # --set ingressRoute.dashboard.enabled=true \
-  # --set ingressRoute.dashboard.matchRule='Host(`dashboard.localhost`)' \
-  # --set ingressRoute.dashboard.entryPoints={web} \
-  # --set providers.kubernetesGateway.enabled=true \
-  # --set gateway.listeners.web.namespacePolicy.from=All\
-  # --set="additionalArguments={--certificatesresolvers.le.acme.email=chhayham@gmail.com,--certificatesresolvers.le.acme.storage=/data/acme.json,--certificatesresolvers.le.acme.httpchallenge.entrypoint=web}"
-
-# kubectl create namespace tigera-operator --dry-run=client -o yaml | kubectl apply -f -
-# helm repo add projectcalico https://docs.tigera.io/calico/charts
-# helm upgrade --install calico projectcalico/tigera-operator --version $calico_chart_version --namespace tigera-operator \
-#   --wait
-
-
-
 
 helm upgrade --install argocd argo-cd \
   --repo https://argoproj.github.io/argo-helm \
@@ -81,19 +67,6 @@ helm upgrade --install argocd argo-cd \
   --create-namespace \
   -f helm/argocd/values.yaml \
   --wait
-  # --set 'configs.secret.argocdServerAdminPassword=$2a$10$5vm8wXaSdbuff0m9l21JdevzXBzJFPCi8sy6OOnpZMAG.fOXL7jvO' \
-  # --set dex.enabled=false \
-  # --set notifications.enabled=false \
-  # --set global.domain=argocd.localhost \
-  # --set server.extensions.enabled=true \
-  # --set 'server.extensions.extensionList[0].name=argo-rollouts' \
-  # --set 'server.extensions.extensionList[0].env[0].name=EXTENSION_URL' \
-  # --set 'server.extensions.extensionList[0].env[0].value=https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar' \
-  # --wait
-# kubectl apply -f manifests/cm-argocd.yaml
-# kubectl rollout restart deployment argocd-server -n argocd
-# kubectl apply -f manifests/ingressroute-argocd.yaml
-
 
 helm upgrade --install argo-rollouts argo-rollouts \
   --repo https://argoproj.github.io/argo-helm \
@@ -114,7 +87,10 @@ helm upgrade --install kargo \
   --set api.tls.enabled=false \
   --set api.tls.terminatedUpstream=false \
   --wait
-kubectl apply -f manifests/ingressroute-kargo.yaml
+
+helm upgrade --install kargo-httproute ./helm/httproute \
+  -f manifests/httproutes/kargo-values.yaml \
+  --wait
 
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
@@ -125,4 +101,7 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
   --set prometheusOperator.admissionWebhooks.certManager.enabled=true \
   --set grafana.adminPassword="admin" \
   --wait
-kubectl apply -f manifests/ingressroute-monitoring.yaml
+
+helm upgrade --install monitoring-httproute ./helm/httproute \
+  -f manifests/httproutes/monitoring-values.yaml \
+  --wait
