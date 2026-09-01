@@ -115,3 +115,10 @@ curl -L -X POST 'http://localhost:30056/dex/token' \
 --data-urlencode 'username=admin@example.com' \
 --data-urlencode 'password=password'
 ```
+
+- Add self signed CA to keychain on MacOS
+
+```bash
+kubectl get secret localhost-tls -n traefik -o jsonpath='{.data.ca\.crt}' | base64 --decode > cert-manager-ca.crt
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain cert-manager-ca.crt
+```

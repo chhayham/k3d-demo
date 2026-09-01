@@ -29,27 +29,9 @@ else
     --wait
 fi
 
-# Install Gateway API and Traefik
+# Install cert-manager, trust-manager, and self-signed-cert-issuer
 
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
-helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
-
-helm repo add traefik https://traefik.github.io/charts
-helm upgrade --install traefik traefik/traefik \
-  --create-namespace \
-  --namespace traefik \
-  --version $traefik_chart_version \
-  --set ingressRoute.dashboard.enabled=true \
-  --set ingressRoute.dashboard.matchRule='Host(`dashboard.localhost`)' \
-  --set ingressRoute.dashboard.entryPoints={web} \
-  --set providers.kubernetesGateway.enabled=true \
-  --set gateway.listeners.web.namespacePolicy.from=All\
-  --set="additionalArguments={--certificatesresolvers.le.acme.email=chhayham@gmail.com,--certificatesresolvers.le.acme.storage=/data/acme.json,--certificatesresolvers.le.acme.httpchallenge.entrypoint=web}"
-
-# kubectl create namespace tigera-operator --dry-run=client -o yaml | kubectl apply -f -
-# helm repo add projectcalico https://docs.tigera.io/calico/charts
-# helm upgrade --install calico projectcalico/tigera-operator --version $calico_chart_version --namespace tigera-operator \
-#   --wait
 
 helm upgrade --install cert-manager cert-manager \
   --repo https://charts.jetstack.io \
@@ -57,6 +39,7 @@ helm upgrade --install cert-manager cert-manager \
   --namespace cert-manager \
   --create-namespace \
   --set crds.enabled=true \
+  --set config.gatewayAPI.enabled=true \
   --wait
 
 helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager \
@@ -65,24 +48,51 @@ helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager
 kubectl apply -f manifests/self-signed-cert-issuer.yaml
 kubectl apply -f manifests/trust-bundle.yaml
 
+# Install Gateway API and Traefik
+
+helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
+
+helm repo add traefik https://traefik.github.io/charts
+helm upgrade --install traefik traefik/traefik \
+  --create-namespace \
+  --namespace traefik \
+  --version $traefik_chart_version \
+  -f helm/traefik/values.yaml \
+  --wait
+  # --set ingressRoute.dashboard.enabled=true \
+  # --set ingressRoute.dashboard.matchRule='Host(`dashboard.localhost`)' \
+  # --set ingressRoute.dashboard.entryPoints={web} \
+  # --set providers.kubernetesGateway.enabled=true \
+  # --set gateway.listeners.web.namespacePolicy.from=All\
+  # --set="additionalArguments={--certificatesresolvers.le.acme.email=chhayham@gmail.com,--certificatesresolvers.le.acme.storage=/data/acme.json,--certificatesresolvers.le.acme.httpchallenge.entrypoint=web}"
+
+# kubectl create namespace tigera-operator --dry-run=client -o yaml | kubectl apply -f -
+# helm repo add projectcalico https://docs.tigera.io/calico/charts
+# helm upgrade --install calico projectcalico/tigera-operator --version $calico_chart_version --namespace tigera-operator \
+#   --wait
+
+
+
 
 helm upgrade --install argocd argo-cd \
   --repo https://argoproj.github.io/argo-helm \
   --version $argo_cd_chart_version \
   --namespace argocd \
   --create-namespace \
-  --set 'configs.secret.argocdServerAdminPassword=$2a$10$5vm8wXaSdbuff0m9l21JdevzXBzJFPCi8sy6OOnpZMAG.fOXL7jvO' \
-  --set dex.enabled=false \
-  --set notifications.enabled=false \
-  --set global.domain=argocd.localhost \
-  --set server.extensions.enabled=true \
-  --set 'server.extensions.extensionList[0].name=argo-rollouts' \
-  --set 'server.extensions.extensionList[0].env[0].name=EXTENSION_URL' \
-  --set 'server.extensions.extensionList[0].env[0].value=https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar' \
+  -f helm/argocd/values.yaml \
   --wait
-kubectl apply -f manifests/cm-argocd.yaml
-kubectl rollout restart deployment argocd-server -n argocd
-kubectl apply -f manifests/ingressroute-argocd.yaml
+  # --set 'configs.secret.argocdServerAdminPassword=$2a$10$5vm8wXaSdbuff0m9l21JdevzXBzJFPCi8sy6OOnpZMAG.fOXL7jvO' \
+  # --set dex.enabled=false \
+  # --set notifications.enabled=false \
+  # --set global.domain=argocd.localhost \
+  # --set server.extensions.enabled=true \
+  # --set 'server.extensions.extensionList[0].name=argo-rollouts' \
+  # --set 'server.extensions.extensionList[0].env[0].name=EXTENSION_URL' \
+  # --set 'server.extensions.extensionList[0].env[0].value=https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar' \
+  # --wait
+# kubectl apply -f manifests/cm-argocd.yaml
+# kubectl rollout restart deployment argocd-server -n argocd
+# kubectl apply -f manifests/ingressroute-argocd.yaml
 
 
 helm upgrade --install argo-rollouts argo-rollouts \
