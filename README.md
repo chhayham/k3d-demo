@@ -29,7 +29,7 @@ make install [CLUSTER_NAME=<name> NODES=<n>]
 Other useful targets:
 
 | Target | Description |
-|---|---|
+| --- | --- |
 | `make prereqs` | Verify required tools (k3d, kubectl, helm) |
 | `make create-cluster` | Create the k3d cluster (skips creation if it already exists) |
 | `make update-cluster` | Alias for `create-cluster` |
@@ -73,17 +73,16 @@ GitOps applications (deployed to Argo CD by `scripts/deploy_argocd_apps.sh`):
 ## Services / Ports (NodePort)
 
 | Service | URL | Notes |
-|---|---|---|
-| Argo CD server | http://localhost:31443 | user `admin`, password `admin` |
-| Kargo API | http://localhost:31444 | user `admin`, password `admin` |
-| Kargo external webhooks | http://localhost:31445 | |
-| Headlamp dashboard | http://localhost:31201 | see Notes for the access token |
-| Prometheus | http://localhost:30904 | per-replica service on 30905 |
-| Grafana | http://localhost:30906 | user `admin`, password `admin` |
-| Alertmanager | http://localhost:30907 | |
-| GoWebService | http://localhost:31080 | |
-| Harbor | https://localhost:30003 | user `admin`, password `admin` |
-| Dex | http://localhost:30056 | user `admin`, password `admin` |
+| --- | --- | --- |
+| Argo CD server | <https://argocd.localhost> | user `admin`, password `admin` |
+| Kargo API | <https://kargo.localhost> | user `admin`, password `admin` |
+| Headlamp dashboard | <http://k8s.localhost> | see Notes for the access token |
+| Prometheus | <https://monitoring.localhost> | |
+| Grafana | <https://grafana.localhost> | user `admin`, password `admin` |
+| Alertmanager | <https://alertmanager.localhost> | |
+| GoWebService | <https://goweb.localhost> | |
+| Harbor | <<https://harbor.localhost> | user `admin`, password `admin` |
+| Dex | <https://dex.localhost> | user `admin`, password `admin` |
 
 ## Notes
 
