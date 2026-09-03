@@ -38,8 +38,7 @@ helm upgrade --install cert-manager cert-manager \
   --version $cert_manager_chart_version \
   --namespace cert-manager \
   --create-namespace \
-  --set crds.enabled=true \
-  --set config.gatewayAPI.enabled=true \
+  -f helm/cert-manager/values.yaml \
   --wait
 
 helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager \

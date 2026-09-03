@@ -1,0 +1,9 @@
+# Enable installation of cert-manager CRDs with the chart
+crds:
+  enabled: true
+
+# cert-manager configuration
+config:
+  # Enable the Gateway API admission controller
+  gatewayAPI:
+    enabled: true
