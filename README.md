@@ -1,6 +1,6 @@
 # k3d_demo
 
-Small demo for running Argo CD, Argo Rollouts, Cert-Manager, Calico, Kargo, Dex, and kube-prometheus-stack on a local k3d cluster.
+Small demo for running Argo CD, Argo Rollouts, Cert-Manager, Kargo, Dex, and kube-prometheus-stack on a local k3d cluster.
 
 > **Note:** This project is intended for demo purposes only. It is not hardened for production use — it ships default credentials (e.g. `admin`/`admin`), self-signed certificates, and wide NodePort exposure suitable only for local experimentation.
 
@@ -14,7 +14,7 @@ Small demo for running Argo CD, Argo Rollouts, Cert-Manager, Calico, Kargo, Dex,
 
 ## VM resource settings
 
-On macOS the cluster runs inside the Rancher Desktop VM, so its resources must be sized for the whole stack (Argo CD, Argo Rollouts, Kargo, Harbor, Calico, monitoring, …):
+On macOS the cluster runs inside the Rancher Desktop VM, so its resources must be sized for the whole stack (Argo CD, Argo Rollouts, Kargo, Harbor, monitoring, …):
 
 - **Rancher Desktop**: Preferences > Virtual Machine — set **CPUs: 2** and **Memory: 8 GB** (minimum recommended), then restart the VM.
 
@@ -33,7 +33,6 @@ Other useful targets:
 | `make prereqs` | Verify required tools (k3d, kubectl, helm) |
 | `make create-cluster` | Create the k3d cluster (skips creation if it already exists) |
 | `make update-cluster` | Alias for `create-cluster` |
-| `make check-cluster` | Verify cluster health |
 | `make deploy-argocd-apps` | Deploy the Argo CD applications |
 | `make install` | prereqs + create-cluster + deploy-argocd-apps |
 | `make reset` | Delete and recreate the cluster |
@@ -45,8 +44,6 @@ You can also run the scripts directly, e.g.:
 ./scripts/create_cluster.sh [cluster-name]
 # default: cluster-name=demo (agent nodes are currently fixed to 1 in the script)
 
-./scripts/check_cluster.sh [cluster-name] [timeout-seconds]   # default timeout: 120s
-
 ./scripts/deploy_argocd_apps.sh [cluster-name]
 
 ./scripts/delete_cluster.sh [cluster-name]
@@ -56,7 +53,6 @@ You can also run the scripts directly, e.g.:
 
 Cluster-level (by `scripts/create_cluster.sh`):
 
-- Calico (`projectcalico/tigera-operator`) v3.31.4
 - cert-manager (jetstack) v1.19.3
 - Argo CD (`argoproj/argo-helm`) 9.4.3, with the Argo Rollouts extension
 - Argo Rollouts (`argoproj/argo-helm`) 2.40.6
