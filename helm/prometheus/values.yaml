@@ -1,0 +1,9 @@
+# Grafana admin password is 'admin'
+grafana:
+  adminPassword: "admin"
+
+prometheusOperator:
+  admissionWebhooks:
+    enabled: true
+    certManager:
+      enabled: true

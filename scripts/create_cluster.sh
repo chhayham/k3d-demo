@@ -45,8 +45,8 @@ helm upgrade --install cert-manager cert-manager \
 helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager \
   --namespace cert-manager \
   --wait
-kubectl apply -f manifests/self-signed-cert-issuer.yaml
-kubectl apply -f manifests/trust-bundle.yaml
+kubectl apply -f manifests/cert-manager/self-signed-cert-issuer.yaml
+kubectl apply -f manifests/cert-manager/trust-bundle.yaml
 
 # Install Gateway API and Traefik
 
@@ -81,13 +81,9 @@ helm upgrade --install kargo \
   --version=$kargo_chart_version \
   --namespace kargo \
   --create-namespace \
-  --set api.adminAccount.passwordHash='$2a$10$Zrhhie4vLz5ygtVSaif6o.qN36jgs6vjtMBdM6yrU1FOeiAAMMxOm' \
-  --set api.adminAccount.tokenSigningKey=iwishtowashmyirishwristwatch \
-  --set api.host=kargo.localhost \
-  --set api.tls.enabled=false \
-  --set api.tls.terminatedUpstream=false \
+  -f helm/kargo/values.yaml \
   --wait
-
+  
 helm upgrade --install kargo-httproute ./helm/httproute \
   -f manifests/httproutes/kargo-values.yaml \
   --wait
@@ -97,9 +93,7 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
   --version $kube_prometheus_stack_chart_version \
   --create-namespace \
   --namespace monitoring \
-  --set prometheusOperator.admissionWebhooks.enabled=true \
-  --set prometheusOperator.admissionWebhooks.certManager.enabled=true \
-  --set grafana.adminPassword="admin" \
+  -f helm/prometheus/values.yaml \
   --wait
 
 helm upgrade --install monitoring-httproute ./helm/httproute \
