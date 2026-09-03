@@ -36,7 +36,7 @@ spec:
       path: helm/httproute
       targetRevision: main
       helm:
-        releaseName: route-gowebwervice
+        releaseName: route-gowebservice
         valuesObject:
           httpRoutes:
             - name: gowebservice

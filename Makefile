@@ -1,4 +1,4 @@
-.PHONY: help prereqs create-cluster update-cluster check-cluster deploy-argocd-apps install clean delete-cluster reset
+.PHONY: help prereqs create-cluster update-cluster deploy-argocd-apps install clean delete-cluster reset
 
 # --------------------
 # Configuration
@@ -16,7 +16,6 @@ help:
 	@echo "  prereqs             Verify required tools (k3d, kubectl, helm)"
 	@echo "  create-cluster      Create the k3d cluster"
 	@echo "  update-cluster      Update the k3d cluster, alias for create-cluster"
-	@echo "  check-cluster       Verify cluster health"
 	@echo "  deploy-argocd-apps  Deploy ArgoCD applications"
 	@echo "  install             Run prereqs, create, check, and deploy"
 	@echo "  reset               Delete and recreate the cluster"
@@ -43,13 +42,6 @@ create-cluster: prereqs
 # --------------------
 update-cluster: create-cluster
 	@echo ">>> Updating cluster $(CLUSTER_NAME)..."
-
-# --------------------
-# Cluster checks
-# --------------------
-check-cluster:
-	@echo ">>> Checking cluster health for $(CLUSTER_NAME)..."
-	@bash scripts/check_cluster.sh $(CLUSTER_NAME) 120
 
 # --------------------
 # Deploy ArgoCD applications
