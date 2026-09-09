@@ -7,14 +7,19 @@ set -euox pipefail
 
 cluster_name="${1:-demo}"
 nodes="${2:-3}"
-# nodes="1"
+
 argo_cd_chart_version=9.4.3
 argo_rollouts_chart_version=2.40.6
 kargo_chart_version=1.11.2
 cert_manager_chart_version=v1.21.1
 calico_chart_version=v3.31.4
 kube_prometheus_stack_chart_version=88.5.4
-traefik_chart_version=41.4.0
+traefik_chart_version=41.5.0
+keda_chart_version=2.20.2
+loki_chart_version=18.12.1
+
+rancher_kubernetes_version=v1.36.4-k3s1
+gateway_api_crds_version=v1.6.1
 
 if k3d cluster list 2>/dev/null | awk '{print $1}' | grep -qx "$cluster_name"; then
   echo "k3d cluster '$cluster_name' already exists"
@@ -26,12 +31,13 @@ else
     --k3s-arg "--disable=traefik@server:0" \
     --servers 1 \
     --agents $nodes \
+    --image rancher/k3s:$rancher_kubernetes_version \
     --wait
 fi
 
 # Install cert-manager, trust-manager, and self-signed-cert-issuer
-
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
+# install gateway api crds for services that need a gateway
+kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/$gateway_api_crds_version/standard-install.yaml
 
 helm upgrade --install cert-manager cert-manager \
   --repo https://charts.jetstack.io \
@@ -47,7 +53,7 @@ helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager
 kubectl apply -f manifests/cert-manager/self-signed-cert-issuer.yaml
 kubectl apply -f manifests/cert-manager/trust-bundle.yaml
 
-# Install Gateway API and Traefik
+# Install Traefik
 
 helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
 
@@ -59,6 +65,7 @@ helm upgrade --install traefik traefik/traefik \
   -f helm/traefik/values.yaml \
   --wait
 
+# Install ArgoCD, Rollouts, and Kargo
 helm upgrade --install argocd argo-cd \
   --repo https://argoproj.github.io/argo-helm \
   --version $argo_cd_chart_version \
@@ -87,6 +94,15 @@ helm upgrade --install kargo-httproute ./helm/httproute \
   -f manifests/httproutes/kargo-values.yaml \
   --wait
 
+# Install Loki before kube-prometheus-stack
+ helm repo add grafana-community https://grafana-community.github.io/helm-charts
+ helm upgrade --install loki grafana-community/loki \
+   --version $loki_chart_version \
+   -f helm/loki/values.yaml \
+   --namespace monitoring \
+   --create-namespace \
+   --wait
+
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   --version $kube_prometheus_stack_chart_version \
@@ -97,4 +113,13 @@ helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheu
 
 helm upgrade --install monitoring-httproute ./helm/httproute \
   -f manifests/httproutes/monitoring-values.yaml \
+  --wait
+
+# install Kubernetes Event-Driven Autoscaling(KEDA)
+helm repo add kedacore https://kedacore.github.io/charts  
+helm upgrade --install keda kedacore/keda \
+  --version $keda_chart_version \
+  --namespace keda \
+  --create-namespace \
+  -f helm/keda/values.yaml \
   --wait
