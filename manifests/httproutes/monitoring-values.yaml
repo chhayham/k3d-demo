@@ -35,3 +35,27 @@ httpRoutes:
       - backendRefs:
         - name: kube-prometheus-stack-alertmanager
           port: 9093    
+  # - name: loki-gateway
+  #   namespace: monitoring
+  #   parentRefs:
+  #     - name: traefik-gateway 
+  #       sectionName: websecure
+  #       namespace: traefik
+  #   hostnames:
+  #     - "logging.localhost"
+  #   rules:
+  #     - backendRefs:
+  #       - name: loki-gateway
+  #         port: 80    
+  - name: loki
+    namespace: monitoring
+    parentRefs:
+      - name: traefik-gateway 
+        sectionName: websecure
+        namespace: traefik
+    hostnames:
+      - "loki.localhost"
+    rules:
+      - backendRefs:
+        - name: loki
+          port: 3100    
