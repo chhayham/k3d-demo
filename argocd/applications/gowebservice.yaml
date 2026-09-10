@@ -84,7 +84,7 @@ spec:
                   matchLabels:
                     app: gowebservice
                 endpoints:
-                  - port: 8080
+                  - port: "8080"
                     path: /metrics
                     interval: 15s
                     scrapeTimeout: 10s
