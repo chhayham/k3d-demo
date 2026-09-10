@@ -61,4 +61,44 @@ spec:
     - ApplyOutOfSyncOnly=true
     automated:
       selfHeal: true
+--- 
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: svcm-gowebservice
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/chhayham/k3d-demo
+      path: helm/service-monitors
+      targetRevision: 2026-09-09-9c3a5f
+      helm:
+        releaseName: svcm-gowebservice
+        valuesObject:
+          serviceMonitors:
+            - name: gowebservice
+              namespace: gowebservice
+              spec:
+                selector:
+                  matchLabels:
+                    app: gowebservice
+                endpoints:
+                  - port: 8080
+                    path: /metrics
+                    interval: 15s
+                    scrapeTimeout: 10s
+                    relabelings:
+                      - sourceLabels: [__meta_kubernetes_namespace]
+                        targetLabel: namespace
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: gowebservice
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - ApplyOutOfSyncOnly=true
+    automated:
+      selfHeal: true
+
 
