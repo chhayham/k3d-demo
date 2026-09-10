@@ -46,7 +46,7 @@ update-cluster: create-cluster
 # --------------------
 # Deploy ArgoCD applications
 # --------------------
-deploy-argocd-apps: check-cluster
+deploy-argocd-apps:
 	@echo ">>> Deploying ArgoCD applications for $(CLUSTER_NAME)..."
 	@bash scripts/deploy_argocd_apps.sh $(CLUSTER_NAME)
 

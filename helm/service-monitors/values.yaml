@@ -1,0 +1,63 @@
+# Default values for the service-monitors chart.
+#
+# This chart creates Prometheus Operator ServiceMonitor resources.
+# Define one entry per ServiceMonitor in the `serviceMonitors` list.
+# Each entry takes:
+#   name      (required) - name of the ServiceMonitor resource
+#   namespace (optional) - namespace to create the ServiceMonitor in (defaults to release namespace)
+#   labels    (optional) - additional labels for the ServiceMonitor resource
+#   spec      (required) - the full ServiceMonitor spec (https://prometheus-operator.dev/docs/operator/design/#servicemonitor)
+#                 must contain at least `selector` and `endpoints`
+
+# Labels added to every ServiceMonitor created by this chart.
+# Individual entries can override or extend these via their own `labels` field.
+globalLabels:
+  app.kubernetes.io/part-of: prometheus
+  app.kubernetes.io/component: servicemonitor
+
+serviceMonitors: []
+# Example entries (uncomment and adapt):
+#
+# serviceMonitors:
+#   - name: node-exporter
+#     labels:
+#       release: monitoring
+#     spec:
+#       namespaceSelector:
+#         any: true
+#       selector:
+#         matchLabels:
+#           app.kubernetes.io/name: node-exporter
+#       endpoints:
+#         - port: https
+#           path: /metrics
+#           interval: 30s
+#           scheme: https
+#           bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+#           tlsConfig:
+#             insecureSkipVerify: true
+#
+#   - name: kube-state-metrics
+#     spec:
+#       selector:
+#         matchLabels:
+#           app.kubernetes.io/name: kube-state-metrics
+#       endpoints:
+#         - port: http-metrics
+#           interval: 30s
+#           path: /metrics
+#
+#   - name: app-http
+#     namespace: my-app
+#     spec:
+#       selector:
+#         matchLabels:
+#           app: my-app
+#       endpoints:
+#         - port: http
+#           path: /metrics
+#           interval: 15s
+#           scrapeTimeout: 10s
+#           relabelings:
+#             - sourceLabels: [__meta_kubernetes_namespace]
+#               targetLabel: namespace

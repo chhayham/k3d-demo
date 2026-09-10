@@ -1,0 +1,21 @@
+Thank you for installing {{ .Release.Name }} ({{ .Chart.Name }} v{{ .Chart.Version }}).
+
+This chart creates Prometheus Operator ServiceMonitor resources.
+
+Number of ServiceMonitors created:
+{{- if .Values.serviceMonitors }}
+  {{- range $i, $entry := .Values.serviceMonitors }}
+  {{- $root := $ }}
+  - {{ $entry.name }} (namespace: {{ if $entry.namespace }}{{ $entry.namespace }}{{ else }}{{ $root.Release.Namespace }}{{ end }})
+  {{- end }}
+{{- else }}
+  (none)
+{{- end }}
+
+Verify with:
+  kubectl get servicemonitor -A
+
+Notes:
+  - The Prometheus Operator CRD (monitoring.coreos.com/v1 ServiceMonitor) must be installed in the cluster.
+  - Namespace-scoped ServiceMonitors require the Prometheus Operator to be configured with
+    namespace selection enabled (serviceMonitorSelectorNilUsesHelmValues / any namespace).

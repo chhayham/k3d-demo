@@ -1,0 +1,29 @@
+{{- /*
+Render one ServiceMonitor resource per entry in .Values.serviceMonitors.
+Each entry:
+  name      (string, required) - name of the ServiceMonitor
+  namespace (string, optional) - namespace to create it in (defaults to release namespace)
+  labels    (map,    optional) - extra labels merged on top of the global labels
+  spec      (map,    required) - ServiceMonitor spec
+*/}}
+{{- range $i, $entry := .Values.serviceMonitors }}
+{{- if not $entry.name }}
+{{- fail (printf "serviceMonitors[%d]: 'name' is required" $i) }}
+{{- end }}
+{{- if not $entry.spec }}
+{{- fail (printf "serviceMonitors[%d] (%s): 'spec' is required" $i $entry.name) }}
+{{- end }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $entry.name | trunc 63 | trimSuffix "-" | required (printf "serviceMonitors[%d] (%s): name must be a valid Kubernetes name" $i $entry.name) }}
+  {{- if $entry.namespace }}
+  namespace: {{ $entry.namespace }}
+  {{- end }}
+  labels:
+    {{- include "service-monitors.labels" (dict "root" $ "entry" $entry) | trimSuffix "\n" | nindent 4 }}
+spec:
+  {{- toYaml $entry.spec | nindent 2 }}
+{{- end }}
+
