@@ -72,25 +72,24 @@ spec:
   sources:
     - repoURL: https://github.com/chhayham/k3d-demo
       path: helm/service-monitors
-      targetRevision: 2026-09-09-9c3a5f
+      targetRevision: main
       helm:
         releaseName: svcm-gowebservice
         valuesObject:
+          labels:
+            release: kube-prometheus-stack
           serviceMonitors:
             - name: gowebservice
               namespace: gowebservice
               spec:
                 selector:
                   matchLabels:
-                    app: gowebservice
+                    app.kubernetes.io/instance: gowebservice
                 endpoints:
                   - port: http
                     path: /metrics
                     interval: 15s
                     scrapeTimeout: 10s
-                    relabelings:
-                      - sourceLabels: [__meta_kubernetes_namespace]
-                        targetLabel: namespace
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gowebservice
