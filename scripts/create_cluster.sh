@@ -17,6 +17,8 @@ kube_prometheus_stack_chart_version=88.5.4
 traefik_chart_version=41.5.0
 keda_chart_version=2.20.2
 loki_chart_version=18.12.1
+fluent_bit_chart_version=0.58.2
+
 
 rancher_kubernetes_version=v1.36.4-k3s1
 gateway_api_crds_version=v1.6.1
@@ -115,11 +117,21 @@ helm upgrade --install monitoring-httproute ./helm/httproute \
   -f manifests/httproutes/monitoring-values.yaml \
   --wait
 
-# install Kubernetes Event-Driven Autoscaling(KEDA)
+# Install Kubernetes Event-Driven Autoscaling(KEDA)
 helm repo add kedacore https://kedacore.github.io/charts  
 helm upgrade --install keda kedacore/keda \
   --version $keda_chart_version \
   --namespace keda \
   --create-namespace \
   -f helm/keda/values.yaml \
+  --wait
+
+# Install Fluent-Bit
+helm repo add fluent https://fluent.github.io/helm-charts
+
+helm upgrade --install fluent-bit fluent/fluent-bit \
+  --version=0.58.2 \
+  --create-namespace \
+  --namespace monitoring \
+  -f helm/fluent/fluent-bit/values.yaml \
   --wait
