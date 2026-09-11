@@ -77,7 +77,7 @@ GitOps applications (deployed to Argo CD by `scripts/deploy_argocd_apps.sh`):
 | Grafana | <https://grafana.localhost> | user `admin`, password `admin` |
 | Alertmanager | <https://alertmanager.localhost> | |
 | GoWebService | <https://goweb.localhost> | |
-| Harbor | <<https://harbor.localhost> | user `admin`, password `admin` |
+| Harbor | <https://harbor.localhost> | user `admin`, password `admin` |
 | Dex | <https://dex.localhost> | user `admin`, password `admin` |
 
 ## Notes
@@ -116,4 +116,25 @@ curl -L -X POST 'http://localhost:30056/dex/token' \
 ```bash
 kubectl get secret localhost-tls -n traefik -o jsonpath='{.data.ca\.crt}' | base64 --decode > cert-manager-ca.crt
 sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain cert-manager-ca.crt
+```
+
+- Increase the open file limit in the Rancher Desktop VM. Append the following to `~/Library/Application\ Support/rancher-desktop/lima/_config/override.yaml` (then restart the Rancher Desktop):
+
+```bash
+cat >> "$HOME/Library/Application Support/rancher-desktop/lima/_config/override.yaml" <<'EOF'
+provision:
+- mode: system
+  script: |
+    #!/bin/sh
+    sysctl fs.inotify.max_user_watches=524288
+    sysctl fs.inotify.max_user_instances=512
+EOF
+```
+
+```bash
+rdctl shell sysctl fs.inotify
+---
+fs.inotify.max_queued_events = 16384
+fs.inotify.max_user_instances = 512
+fs.inotify.max_user_watches = 524288
 ```
