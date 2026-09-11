@@ -1,4 +1,15 @@
 config:
+  ## https://docs.fluentbit.io/manual/pipeline/inputs
+  inputs: |
+    [INPUT]
+        Name tail
+        Path /var/log/containers/*.log
+        multiline.parser docker, cri
+        Tag kube.*
+        Parser docker, cri, docker_no_time
+        Mem_Buf_Limit 5MB
+        Skip_Long_Lines On 
+  ## https://docs.fluentbit.io/manual/pipeline/outputs      
   outputs: |
     [OUTPUT]
         Name                   loki
