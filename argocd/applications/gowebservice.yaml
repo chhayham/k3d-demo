@@ -77,7 +77,7 @@ spec:
         releaseName: svcm-gowebservice
         valuesObject:
           labels:
-            Release: kube-prometheus-stack # match label declared here, kubectl describe prometheus/kube-prometheus-stack-prometheus -n monitoring
+            release: kube-prometheus-stack # match label declared here, kubectl describe prometheus/kube-prometheus-stack-prometheus -n monitoring
           serviceMonitors:
             - name: gowebservice
               namespace: gowebservice
