@@ -18,6 +18,7 @@ traefik_chart_version=41.5.0
 keda_chart_version=2.20.2
 loki_chart_version=18.12.1
 fluent_bit_chart_version=0.58.2
+dex_chart_version=0.24.1
 
 
 rancher_kubernetes_version=v1.36.4-k3s1
@@ -135,3 +136,13 @@ helm upgrade --install fluent-bit fluent/fluent-bit \
   --namespace monitoring \
   -f helm/fluent/fluent-bit/values.yaml \
   --wait
+
+# Install Dex
+helm repo add dexidp https://charts.dexidp.io
+
+helm upgrade --install dex dexidp/dex \
+  --version $dex_chart_version \
+  --create-namespace \
+  --namespace dex \
+  -f helm/dex/values.yaml \
+  --wait  

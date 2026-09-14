@@ -1,0 +1,83 @@
+https:
+  # -- Enable the HTTPS endpoint.
+  enabled: false
+
+grpc:
+  # -- Enable the gRPC endpoint.
+  # Read more in the [documentation](https://dexidp.io/docs/api/).
+  enabled: false
+
+configSecret:
+  # -- Enable creating a secret from the values passed to `config`.
+  # If set to false, name must point to an existing secret.
+  create: true
+
+  # -- The name of the secret to mount as configuration in the pod.
+  # If not set and create is true, a name is generated using the fullname template.
+  # Must point to secret that contains at least a `config.yaml` key.
+  name: ""
+
+# -- Application configuration.
+# See the [official documentation](https://dexidp.io/docs/).
+config:
+  issuer: http://127.0.0.1:5556/dex
+  storage:
+    type: memory
+  web:
+    http: 127.0.0.1:5556
+  connectors:
+  - type: github
+    # Required field for connector id.
+    id: github
+    # Required field for connector name.
+    name: GitHub
+    config:
+      # Credentials can be string literals or pulled from the environment.
+      clientID: $GITHUB_CLIENT_ID
+      clientSecret: $GITHUB_CLIENT_SECRET
+      redirectURI: http://127.0.0.1:5556/dex/callback
+  frontend:
+    issuer: dex
+    logoURL: theme/logo.png
+    dir: ""
+    theme: dark
+
+httpRoute:
+  # -- Enable Gateway API HTTPRoute.
+  # Gateway API support is in EXPERIMENTAL status. Support depends on your Gateway controller implementation.
+  # See the [Gateway API documentation](https://gateway-api.sigs.k8s.io/) for details.
+  enabled: true
+
+  # -- Annotations to be added to the HTTPRoute.
+  annotations: {}
+
+  # -- References to the Gateway(s) that this HTTPRoute is attached to.
+  # See the [API reference](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.ParentReference) for details.
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+      port: 443
+
+  # -- Hostnames defines the hostnames for routing.
+  # See the [API reference](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.Hostname) for details.
+  hostnames:
+    - dex.localhost
+
+  # -- HTTPRoute rules configuration.
+  # See the [API reference](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.HTTPRouteRule) for details.
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      # filters:
+      #   - type: RequestHeaderModifier
+      #     requestHeaderModifier:
+      #       add:
+      #         - name: X-Custom-Header
+      #           value: custom-value
+serviceMonitor:
+  # -- Enable Prometheus ServiceMonitor.
+  # See the [documentation](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/design.md#servicemonitor) and the [API reference](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor) for details.
+  enabled: true
