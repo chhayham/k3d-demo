@@ -56,46 +56,6 @@ helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager
 kubectl apply -f manifests/cert-manager/self-signed-cert-issuer.yaml
 kubectl apply -f manifests/cert-manager/trust-bundle.yaml
 
-# Install Traefik
-
-helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
-
-helm repo add traefik https://traefik.github.io/charts
-helm upgrade --install traefik traefik/traefik \
-  --create-namespace \
-  --namespace traefik \
-  --version $traefik_chart_version \
-  -f helm/traefik/values.yaml \
-  --wait
-
-# Install ArgoCD, Rollouts, and Kargo
-helm upgrade --install argocd argo-cd \
-  --repo https://argoproj.github.io/argo-helm \
-  --version $argo_cd_chart_version \
-  --namespace argocd \
-  --create-namespace \
-  -f helm/argocd/values.yaml \
-  --wait
-
-helm upgrade --install argo-rollouts argo-rollouts \
-  --repo https://argoproj.github.io/argo-helm \
-  --version $argo_rollouts_chart_version \
-  --create-namespace \
-  --namespace argo-rollouts \
-  --wait
-
-# Password is 'admin'
-helm upgrade --install kargo \
-  oci://ghcr.io/akuity/kargo-charts/kargo \
-  --version=$kargo_chart_version \
-  --namespace kargo \
-  --create-namespace \
-  -f helm/kargo/values.yaml \
-  --wait
-  
-helm upgrade --install kargo-httproute ./helm/httproute \
-  -f manifests/httproutes/kargo-values.yaml \
-  --wait
 
 # Install Loki before kube-prometheus-stack
  helm repo add grafana-community https://grafana-community.github.io/helm-charts
@@ -137,6 +97,9 @@ helm upgrade --install fluent-bit fluent/fluent-bit \
   -f helm/fluent/fluent-bit/values.yaml \
   --wait
 
+# Create secret for GitHub OIDC
+kubectl apply -f manifests/github/oidc-secret.yaml
+
 # Install Dex
 helm repo add dexidp https://charts.dexidp.io
 
@@ -146,3 +109,62 @@ helm upgrade --install dex dexidp/dex \
   --namespace dex \
   -f helm/dex/values.yaml \
   --wait  
+
+# Install Traefik
+
+helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
+
+kubectl create namespace traefik --dry-run=client -o yaml | kubectl apply -f -
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout tmp/certs/tls.key -out tmp/certs/tls.crt \
+  -subj "/CN=*.localhost"
+
+kubectl create secret tls local-selfsigned-tls \
+  --cert=tmp/certs/tls.crt --key=tmp/certs/tls.key \
+  --namespace traefik --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl apply -f manifests/traefik/certificate.yaml 
+
+helm repo add traefik https://traefik.github.io/charts
+helm upgrade --install traefik traefik/traefik \
+  --create-namespace \
+  --namespace traefik \
+  --version $traefik_chart_version \
+  -f helm/traefik/values.yaml \
+  --wait
+
+# Install ArgoCD, Rollouts, and Kargo
+helm upgrade --install argocd argo-cd \
+  --repo https://argoproj.github.io/argo-helm \
+  --version $argo_cd_chart_version \
+  --namespace argocd \
+  --create-namespace \
+  -f helm/argocd/values.yaml \
+  --wait
+
+# traefik servertransport to handle tls
+kubectl apply -f manifests/argocd/servertransport.yaml --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl rollout restart deployment argocd-server -n argocd
+
+helm upgrade --install argo-rollouts argo-rollouts \
+  --repo https://argoproj.github.io/argo-helm \
+  --version $argo_rollouts_chart_version \
+  --create-namespace \
+  --namespace argo-rollouts \
+  --wait
+
+# Password is 'admin'
+helm upgrade --install kargo \
+  oci://ghcr.io/akuity/kargo-charts/kargo \
+  --version=$kargo_chart_version \
+  --namespace kargo \
+  --create-namespace \
+  -f helm/kargo/values.yaml \
+  --wait
+  
+helm upgrade --install kargo-httproute ./helm/httproute \
+  -f manifests/httproutes/kargo-values.yaml \
+  --wait
+

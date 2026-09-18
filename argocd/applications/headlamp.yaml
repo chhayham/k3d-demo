@@ -14,6 +14,15 @@ spec:
         valuesObject:
           service:
             port: 80
+          config:
+            oidc:
+              clientID: "headlamp" # Must match staticClients.id in Dex
+              clientSecret: ZXhhbXBsZS1hcHAtc2VjcmV0 # Must match staticClients.secret in Dex
+              issuerURL: "http://dex.dex.svc.cluster.local:5556/dex" # Your Dex public URL
+              scopes: "openid profile email groups" # "groups" maps your GitHub teams
+              useCookie: true
+            extraArgs:
+             - "--oidc-skip-tls-verify"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp
@@ -51,6 +60,7 @@ spec:
                 - backendRefs:
                     - name: headlamp
                       port: 80
+
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp

@@ -6,13 +6,13 @@ ports:
   web:
     port: 80
     nodePort: 30000
-    # Instructs this entry point to redirect all traffic to the 'websecure' entry point
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
+    # # Instructs this entry point to redirect all traffic to the 'websecure' entry point
+    # http:
+    #   redirections:
+    #     entryPoint:
+    #       to: websecure
+    #       scheme: https
+    #       permanent: true
 
   # Defines the HTTPS entry point named 'websecure'
   websecure:
@@ -65,9 +65,8 @@ providers:
 
 ## Gateway Listeners
 gateway:
-  annotations:
-    # cert-manager.io/issuer: traefik
-    cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
+  # annotations:
+  #   cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
   listeners:
     web:           # HTTP listener that matches entryPoint `web`
       port: 80
@@ -78,15 +77,16 @@ gateway:
     websecure:         # HTTPS listener that matches entryPoint `websecure`
       port: 443
       protocol: HTTPS  # TLS terminates inside Traefik
-      hostname: "*.localhost"
       namespacePolicy:
         from: All
       mode: Terminate
       certificateRefs:    
-        - name: localhost-tls
-          kind: Secret 
-          group: "core"
-
+        # - kind: Secret
+        #   name: selfsigned-tls  # will be created by cert-manager, via gateway annotation 
+        #   group: ""
+        - kind: Secret 
+          name: local-selfsigned-tls   # created manually earlier
+          group: ""
 
 # Enable Observability
 log:
@@ -103,3 +103,4 @@ metrics:
 # Additional arguments
 additionalArguments:
   - "--providers.kubernetescrd.allowcrossnamespace=true"
+  - "--providers.kubernetesCRD.safeNaming=true"

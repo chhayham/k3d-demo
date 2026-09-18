@@ -1,0 +1,26 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: traefik-localhost-tls
+  namespace: traefik
+spec:
+  isCA: true
+  commonName: localhost
+  secretName: localhost-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  dnsNames:
+    - "*.localhost"
+  ipAddresses:
+    - 127.0.0.1
+    - 0.0.0.0
+  nameConstraints:
+    critical: true
+    permitted:
+      ipRanges: 
+        - "10.10.0.0/16"
+  issuerRef:
+    name: selfsigned-cluster-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
