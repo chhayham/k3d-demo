@@ -32,7 +32,7 @@ config:
   enablePasswordDB: true
   
   web:
-    http: https://dex.localhost
+    http: dex.localhost
   
   connectors:
   - type: github
@@ -47,10 +47,11 @@ config:
   
   staticClients:
     - id: argocd
+      public: true
       name: "Argo CD"
       secret: cGFzc3dvcmQ= # Replace with a secure secret
       redirectURIs:
-        - "http://argocd-server.argocd:8080/auth/callback" # Replace with your actual Argo CD URL
+        - "http://argocd.localhost/auth/callback" # Replace with your actual Argo CD URL
 
   #   - id: headlamp
   #     redirectURIs:

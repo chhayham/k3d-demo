@@ -104,3 +104,4 @@ metrics:
 additionalArguments:
   - "--providers.kubernetescrd.allowcrossnamespace=true"
   - "--providers.kubernetesCRD.safeNaming=true"
+  - "--providers.http.tls.insecureSkipVerify=true"

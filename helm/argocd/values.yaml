@@ -20,14 +20,10 @@ configs:
           teamNameField: slug
     # oidc.config: |
     #     name: "Dex SSO"
-    #     issuer: "https://dex.localhost/dex" # The external URL of your standalone Dex server
+    #     issuer: "https://dex.localhost" # The external URL of your standalone Dex server
     #     clientID: "argocd"                # Must match the staticClients.id in Dex
     #     clientSecret: "$oidc.dex.clientSecret" # Reference to a Kubernetes secret
-    #     requestedScopes:
-    #       - openid
-    #       - profile
-    #       - email
-    #       - offline_access
+    #     cliClientID: localhost
 
 dex:
   enabled: true #false
@@ -42,6 +38,9 @@ server:
   # service: 
   #   annotations: 
   #     traefik.ingress.kubernetes.io/service.serverstransport: argocd-argocd-transport@kubernetescrd
+    # servicePortHttp2: 8080
+    # servicePortHttp2AppProtocol: kubernetes.io/h2c
+
   certificate:
     enabled: true
     issuer:
