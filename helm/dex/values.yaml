@@ -10,7 +10,7 @@ fullnameOverride: ""
 image:
   repository: ghcr.io/dexidp/dex
   # -- Defaults to the chart appVersion when empty.
-  tag: ""
+  tag: "v2.44.0" # 2.44.0
   pullPolicy: IfNotPresent
   # -- Optional image pull secrets, e.g. for private registries.
   pullSecrets: []
