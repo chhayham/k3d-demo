@@ -1,0 +1,15 @@
+apiVersion: v2
+name: dex
+description: Helm chart to deploy the Dex OpenID Connect identity provider (GitHub connector, Argo CD & Headlamp static clients), fronted by Traefik with TLS termination and cert-manager issued certificates
+type: application
+version: 0.1.0
+appVersion: "2.42.0"
+keywords:
+  - dex
+  - oidc
+  - openid-connect
+  - identity-provider
+  - authentication
+home: https://dexidp.io/
+sources:
+  - https://github.com/dexidp/dex

@@ -1,0 +1,8 @@
+{{- /*
+TLS for Dex is handled CENTRALLY by the Traefik ingress workflow — not by this
+chart. The gateway's `websecure` listener uses a single shared, cert-manager
+issued wildcard certificate for *.localhost (see manifests/traefik/certificate.yaml
+and helm/traefik/values.yaml). Because dex.localhost is covered by that wildcard,
+this chart intentionally does NOT create a per-service Certificate.
+This template renders nothing.
+*/ -}}

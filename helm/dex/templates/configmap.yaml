@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "dex.fullname" . }}
+  labels:
+    {{- include "dex.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    # -- Public issuer URL. Must match the hostnames served by Traefik so that
+    #    the browser sees a consistent URL across the login flow.
+    issuer: {{ include "dex.issuer" . | quote }}
+
+    # -- WARNING: in-memory storage is for development only.  For production,
+    #    configure a MySQL/Postgres `storage` block
+    #    (see https://dexidp.io/docs/storage/).
+    storage:
+      type: memory
+
+    web:
+      # -- Bind to all interfaces so the Service can reach Dex.
+      http: 0.0.0.0:{{ .Values.service.port }}
+
+    {{- if .Values.dex.enableTelemetry }}
+    # -- Optional Prometheus metrics endpoint.
+    telemetry:
+      prometheus:
+        address: 0.0.0.0:{{ .Values.telemetry.port }}
+    {{- end }}
+
+    # -- Pre-registered OIDC clients. Argo CD and Headlamp use these
+    #    id/secret pairs to authenticate users against Dex.
+    staticClients:
+    {{- range .Values.dex.staticClients }}
+      - id: {{ .id | quote }}
+        name: {{ .name | quote }}
+        secret: {{ .secret | quote }}
+        {{- if .redirectURIs }}
+        redirectURIs:
+        {{- range .redirectURIs }}
+          - {{ . | quote }}
+        {{- end }}
+        {{- end }}
+    {{- end }}
+
+    # -- Authentication connectors.
+    connectors:
+    {{- if .Values.dex.github.enabled }}
+      - type: github
+        id: github
+        name: GitHub
+        config:
+          clientId: {{ .Values.dex.github.clientId | quote }}
+          clientSecret: {{ .Values.dex.github.clientSecret | quote }}
+          # -- This redirect URI MUST be registered in the GitHub OAuth App.
+          redirectURI: {{ include "dex.githubRedirectURI" . | quote }}
+          baseURL: {{ .Values.dex.github.baseURL | quote }}
+          # -- Optionally restrict logins to specific orgs/teams:
+          #    orgs:
+          #      - org: myorg
+          #        teams: [myteam]
+          #    teams:
+          #      - myteam
+    {{- end }}
+    {{- with .Values.dex.extraConnectors }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}

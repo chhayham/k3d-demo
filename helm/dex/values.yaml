@@ -1,99 +1,122 @@
-https:
-  # -- Enable the HTTPS endpoint.
-  enabled: false # terminate at traefik
+# Default values for dex.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 
-grpc:
-  # -- Enable the gRPC endpoint.
-  # Read more in the [documentation](https://dexidp.io/docs/api/).
-  enabled: false
+replicaCount: 1
 
-configSecret:
-  # -- Enable creating a secret from the values passed to `config`.
-  # If set to false, name must point to an existing secret.
-  create: true
+nameOverride: ""
+fullnameOverride: ""
 
-  # -- The name of the secret to mount as configuration in the pod.
-  # If not set and create is true, a name is generated using the fullname template.
-  # Must point to secret that contains at least a `config.yaml` key.
-  name: ""
+image:
+  repository: ghcr.io/dexidp/dex
+  # -- Defaults to the chart appVersion when empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+  # -- Optional image pull secrets, e.g. for private registries.
+  pullSecrets: []
 
-# -- Application configuration.
-# See the [official documentation](https://dexidp.io/docs/).
-config:
-  # Set it to a valid URL
-  issuer: https://dex.localhost
-
-  # See https://dexidp.io/docs/storage/ for more options
-  storage:
-    type: memory
-
-  # Enable at least one connector
-  # See https://dexidp.io/docs/connectors/ for more options
-  enablePasswordDB: true
-  
-  web:
-    http: dex.localhost
-  
-  connectors:
-  - type: github
-    id: github
-    name: GitHub
-    config:
-      clientID: "Iv23liFQMxQyM7HIMULO"
-      clientSecret: "589cd9df80ee8fa008c8567e51c7cf2d86ba1eb1"
-      redirectURI: https://dex.localhost/dex/callback
-      loadAllGroups: true
-      teamNameField: slug
-  
-  staticClients:
-    - id: argocd
-      public: true
-      name: "Argo CD"
-      secret: cGFzc3dvcmQ= # Replace with a secure secret
-      redirectURIs:
-        - "http://argocd.localhost/auth/callback" # Replace with your actual Argo CD URL
-
-  #   - id: headlamp
-  #     redirectURIs:
-  #       - 'http://headlamp.headlmap:8080/oidc-callback'
-  #     name: 'Headlamp'
-  #     secret: ZXhhbXBsZS1hcHAtc2VjcmV0
-
-httpRoute:
-  # -- Enable Gateway API HTTPRoute.
-  # Gateway API support is in EXPERIMENTAL status. Support depends on your Gateway controller implementation.
-  # See the [Gateway API documentation](https://gateway-api.sigs.k8s.io/) for details.
-  enabled: true
-
-  # -- Annotations to be added to the HTTPRoute.
+serviceAccount:
   annotations: {}
 
-  # -- References to the Gateway(s) that this HTTPRoute is attached to.
-  # See the [API reference](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.ParentReference) for details.
+# -- Public issuer URL. This is the base URL used in the Dex config `issuer`
+#    field and is what external clients (browsers, Argo CD, Headlamp) see.
+#    Must be reachable through Traefik (see `httpRoute`).
+issuer:
+  url: "https://dex.localhost/dex"
+
+# -- Cluster-internal issuer URL. In-cluster clients (Argo CD, Headlamp, other
+#    pods) can use this to talk to Dex directly, bypassing the Traefik proxy.
+#    Format: http://dex.<namespace>.svc.cluster.local:<port>/dex
+internalUrl: "http://dex.dex.svc.cluster.local:5556/dex"
+
+service:
+  # -- ClusterIP keeps Dex reachable from every namespace and pod in the
+  #    cluster via its service DNS name.
+  type: ClusterIP
+  # -- Port Dex listens on (web.http) and the Service exposes.
+  port: 5556
+  annotations: {}
+
+# -- Optional Prometheus metrics endpoint for Dex.
+enableTelemetry: true
+telemetry:
+  port: 5558
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+#  runAsNonRoot: true
+#  runAsUser: 65532
+#  fsGroup: 65532
+
+securityContext: {}
+#  allowPrivilegeEscalation: false
+#  capabilities:
+#    drop:
+#      - ALL
+
+resources: {}
+#  limits:
+#    cpu: 200m
+#    memory: 256Mi
+#  requests:
+#    cpu: 50m
+#    memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+dex:
+  # -- GitHub OIDC connector.
+  #    Create an OAuth App at https://github.com/settings/developers and set
+  #    the "Authorization callback URL" to `<issuer.url>/callback`
+  #    (default: https://dex.localhost/dex/callback).
+  github:
+    enabled: true
+    clientId: "your-github-client-id"
+    clientSecret: "your-github-client-secret"
+    # -- Change only if you run a GitHub Enterprise instance.
+    baseURL: "https://github.com"
+
+  # -- Pre-registered OIDC clients. These id/secret pairs are the ones
+  #    Argo CD and Headlamp use to authenticate users against Dex.
+  #    The secrets here are the raw values (not base64) — Dex expects them
+  #    as plain strings in its config.
+  staticClients:
+    - id: "argocd"
+      name: "Argo CD"
+      secret: "argocd-client-secret"
+    - id: "headlamp"
+      name: "Headlamp"
+      # -- Matches the value already used in argocd/applications/headlamp.yaml
+      secret: "ZXhhbXBsZS1hcHAtc2VjcmV0"
+
+  # -- Escape hatch: append extra connectors (ldap, saml, microsoft, ...) to
+  #    the generated Dex config. Must be a valid list of connector definitions.
+  extraConnectors: []
+  #  - type: ldap
+  #    id: ldap
+  #    name: LDAP
+  #    config:
+  #      host: "ldap.example.com:389"
+  #      ...
+
+# -- Gateway API HTTPRoute. Routes HTTPS traffic from Traefik to the Dex
+#    Service. TLS termination happens CENTRALLY at the Gateway (Traefik
+#    `websecure` listener) using the shared *.localhost wildcard cert
+#    (localhost-tls, produced by cert-manager via
+#    manifests/traefik/certificate.yaml). This chart intentionally does NOT
+#    create a per-service Certificate.
+httpRoute:
+  enabled: true
+  annotations: {}
   parentRefs:
     - name: traefik-gateway
       namespace: traefik
       sectionName: websecure
-
-  # -- Hostnames defines the hostnames for routing.
-  # See the [API reference](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.Hostname) for details.
   hostnames:
-    - dex.localhost
-
-  # -- HTTPRoute rules configuration.
-  # See the [API reference](https://gateway-api.sigs.k8s.io/reference/spec/#gateway.networking.k8s.io/v1.HTTPRouteRule) for details.
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      # filters:
-      #   - type: RequestHeaderModifier
-      #     requestHeaderModifier:
-      #       add:
-      #         - name: X-Custom-Header
-      #           value: custom-value
-serviceMonitor:
-  # -- Enable Prometheus ServiceMonitor.
-  # See the [documentation](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/design.md#servicemonitor) and the [API reference](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#servicemonitor) for details.
-  enabled: true
+    - "dex.localhost"
+  # -- Optional HTTPRoute filters.
+  filters: []

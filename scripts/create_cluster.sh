@@ -18,7 +18,6 @@ traefik_chart_version=41.5.0
 keda_chart_version=2.20.2
 loki_chart_version=18.12.1
 fluent_bit_chart_version=0.58.2
-dex_chart_version=0.24.1
 
 
 rancher_kubernetes_version=v1.36.4-k3s1
@@ -100,29 +99,12 @@ helm upgrade --install fluent-bit fluent/fluent-bit \
 # Create secret for GitHub OIDC
 kubectl apply -f manifests/github/oidc-secret.yaml
 
-# Install Dex
-helm repo add dexidp https://charts.dexidp.io
-
-helm upgrade --install dex dexidp/dex \
-  --version $dex_chart_version \
-  --create-namespace \
-  --namespace dex \
-  -f helm/dex/values.yaml \
-  --wait  
 
 # Install Traefik
 
 helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
 
 kubectl create namespace traefik --dry-run=client -o yaml | kubectl apply -f -
-
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout tmp/certs/tls.key -out tmp/certs/tls.crt \
-  -subj "/CN=*.localhost"
-
-kubectl create secret tls local-selfsigned-tls \
-  --cert=tmp/certs/tls.crt --key=tmp/certs/tls.key \
-  --namespace traefik --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl apply -f manifests/traefik/certificate.yaml 
 
@@ -133,6 +115,19 @@ helm upgrade --install traefik traefik/traefik \
   --version $traefik_chart_version \
   -f helm/traefik/values.yaml \
   --wait
+
+# Install Dex
+# The local chart (./helm/dex) owns the cert-manager Certificate and the
+# Gateway API HTTPRoute, so no separate manifests/dex/*.yaml files are needed.
+helm lint helm/dex
+
+helm upgrade --install dex ./helm/dex \
+  --namespace dex \
+  --create-namespace \
+  --set dex.github.clientId=$GITHUB_CLIENT_ID \
+  --set dex.github.clientSecret=$GITHUB_CLIENT_SECRET \
+  --wait
+
 
 # Install ArgoCD, Rollouts, and Kargo
 helm upgrade --install argocd argo-cd \

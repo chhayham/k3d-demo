@@ -1,4 +1,3 @@
-
 # Configure Network Ports and EntryPoints
 # EntryPoints are the network listeners for incoming traffic.
 ports:
@@ -18,6 +17,10 @@ ports:
   websecure:
     port: 443
     nodePort: 30001
+  
+  # tcp:
+  #   port: 8443
+  
 
 # Enables the dashboard in Secure Mode
 api:
@@ -58,6 +61,11 @@ ingressClass:
 # Enable Gateway API Provider & Disables the KubernetesIngress provider
 # Providers tell Traefik where to find routing configuration.
 providers:
+  kubernetesCRD:
+    enabled: true
+    allowExternalNameServices: false
+    namespaces: []
+    safeNaming: true
   kubernetesIngress:
     enabled: false
   kubernetesGateway:
@@ -65,8 +73,6 @@ providers:
 
 ## Gateway Listeners
 gateway:
-  # annotations:
-  #   cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
   listeners:
     web:           # HTTP listener that matches entryPoint `web`
       port: 80
@@ -80,18 +86,43 @@ gateway:
       namespacePolicy:
         from: All
       mode: Terminate
-      certificateRefs:    
-        # - kind: Secret
-        #   name: selfsigned-tls  # will be created by cert-manager, via gateway annotation 
-        #   group: ""
-        - kind: Secret 
-          name: local-selfsigned-tls   # created manually earlier
+      # Shared wildcard TLS for EVERY service routed through Traefik.
+      # `localhost-tls` is produced by cert-manager via the single source of
+      # truth in manifests/traefik/certificate.yaml (Certificate
+      # `traefik-localhost-tls`, dnsNames: *.localhost). Per-service certs are
+      # intentionally not used; each service only adds an HTTPRoute hostname.
+      certificateRefs:
+        - kind: Secret
+          name: localhost-tls
           group: ""
+
+    # tcp:
+    #   protocol: TCP
+    #   port: 8443
+    #   allowedRoutes:
+    #     kinds:
+    #       - kind: TCPRoute
+
+    # dex-passthrough:
+    #   port: 443
+    #   protocol: HTTPS
+    #   hostname: "dex.localhost"
+    #   tls:
+    #     mode: Passthrough # Crucial: Tells Traefik to forward raw encrypted stream
+    #   certificateRefs:    
+    #     - kind: Secret 
+    #       name: localhost-tls
+    #       group: "" 
+    #   allowedRoutes:
+    #     kinds:
+    #       - kind: IngressRouteTCP # Instructs the listener to bind TLSRoutes
+    #     namespaces:
+    #       from: All
 
 # Enable Observability
 log:
   level: INFO
-# This enables access logs, outputting them to Traefik's standard output by default. The [Access Logs Documentation](https://doc.traefik.io/traefik/observability/access-logs/) covers formatting, filtering, and output options.
+# This enables access logs, outputting them to Traefik's standard output by default. The [Access Logs Documentation](https://doc.traefik.io/traefik/observability/access-logs/) covers formatting, filtering, and other fields.
 accessLog:
   enabled: true
 
@@ -101,7 +132,7 @@ metrics:
     enabled: true
 
 # Additional arguments
-additionalArguments:
-  - "--providers.kubernetescrd.allowcrossnamespace=true"
-  - "--providers.kubernetesCRD.safeNaming=true"
-  - "--providers.http.tls.insecureSkipVerify=true"
+# additionalArguments:
+#   - "--providers.kubernetescrd.allowcrossnamespace=true"
+#   - "--providers.kubernetesCRD.safeNaming=true"
+#   - "--providers.http.tls.insecureSkipVerify=true"

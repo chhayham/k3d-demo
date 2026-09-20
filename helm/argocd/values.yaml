@@ -2,32 +2,31 @@ configs:
   secret:
     argocdServerAdminPassword: $2a$10$5vm8wXaSdbuff0m9l21JdevzXBzJFPCi8sy6OOnpZMAG.fOXL7jvO
     extra:
-      oidc.dex.clientSecret: cGFzc3dvcmQ=
+      oidc.dex.clientSecret: argocd-client-secret
 
   params:
     server.insecure: true  # HTTPS backend
 
   cm:
-    dex.config: |
-      connectors:
-      - type: github
-        id: github
-        name: GitHub
-        config:
-          clientID: "Iv23liFQMxQyM7HIMULO"
-          clientSecret: "589cd9df80ee8fa008c8567e51c7cf2d86ba1eb1"
-          loadAllGroups: true
-          teamNameField: slug
-    # oidc.config: |
-    #     name: "Dex SSO"
-    #     issuer: "https://dex.localhost" # The external URL of your standalone Dex server
-    #     clientID: "argocd"                # Must match the staticClients.id in Dex
-    #     clientSecret: "$oidc.dex.clientSecret" # Reference to a Kubernetes secret
-    #     cliClientID: localhost
+    # dex.config: |
+    #   connectors:
+    #   - type: github
+    #     id: github
+    #     name: GitHub
+    #     config:
+    #       clientID: "Iv23liFQMxQyM7HIMULO"
+    #       clientSecret: "589cd9df80ee8fa008c8567e51c7cf2d86ba1eb1"
+    #       loadAllGroups: true
+    #       teamNameField: slug
+    oidc.config: |
+        name: "Dex SSO"
+        issuer: "https://dex.localhost/dex"  # Must EXACTLY match Dex's issuer (iss claim) — helm/dex -> issuer.url
+        clientID: "argocd"                    # Must match staticClients.id in Dex (helm/dex)
+        clientSecret: argocd-client-secret    # Must match staticClients.secret for id "argocd" (helm/dex)
 
 dex:
-  enabled: true #false
-      
+  enabled: false
+
 notifications:
   enabled: false
 
@@ -35,8 +34,8 @@ global:
   domain: "argocd.localhost"
 
 server:
-  # service: 
-  #   annotations: 
+  # service:
+  #   annotations:
   #     traefik.ingress.kubernetes.io/service.serverstransport: argocd-argocd-transport@kubernetescrd
     # servicePortHttp2: 8080
     # servicePortHttp2AppProtocol: kubernetes.io/h2c
@@ -56,7 +55,7 @@ server:
       - name: argo-rollouts
         env:
           - name: EXTENSION_URL
-            value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar 
+            value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar
 
   httproute:
     enabled: true
@@ -64,7 +63,7 @@ server:
       - name: traefik-gateway
         namespace: traefik
         sectionName: websecure
-    hostnames: 
+    hostnames:
       - argocd.localhost
 
   backendTLSPolicy:
@@ -77,4 +76,3 @@ server:
     validation:
       hostname: "argocd.localhost"
       wellKnownCACertificates: "System"
-  

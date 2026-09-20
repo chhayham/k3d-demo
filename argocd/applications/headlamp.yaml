@@ -16,13 +16,13 @@ spec:
             port: 80
           config:
             oidc:
-              clientID: "headlamp" # Must match staticClients.id in Dex
-              clientSecret: ZXhhbXBsZS1hcHAtc2VjcmV0 # Must match staticClients.secret in Dex
-              issuerURL: "http://dex.dex.svc.cluster.local:5556/dex" # Your Dex public URL
+              clientID: "headlamp" # Must match staticClients.id in Dex (helm/dex)
+              clientSecret: ZXhhbXBsZS1hcHAtc2VjcmV0 # Must match staticClients.secret for id "headlamp" (helm/dex)
+              issuerURL: "https://dex.localhost/dex" # Must EXACTLY match Dex's issuer (iss claim) — helm/dex -> issuer.url
               scopes: "openid profile email groups" # "groups" maps your GitHub teams
               useCookie: true
             extraArgs:
-             - "--oidc-skip-tls-verify"
+             - "--oidc-skip-tls-verify" # Dex TLS is the self-signed shared *.localhost wildcard cert
   destination:
     server: "https://kubernetes.default.svc"
     namespace: headlamp
@@ -32,7 +32,7 @@ spec:
     - ApplyOutOfSyncOnly=true
     automated:
       selfHeal: true
---- 
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -70,4 +70,3 @@ spec:
     - ApplyOutOfSyncOnly=true
     automated:
       selfHeal: true
-

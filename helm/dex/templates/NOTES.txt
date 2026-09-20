@@ -1,0 +1,21 @@
+Dex has been installed and is ready to accept logins.
+
+Public URL (behind Traefik):
+  {{ include "dex.issuer" . }}
+
+In-cluster URL (for Argo CD / Headlamp / other pods):
+  {{ include "dex.internalIssuer" . }}
+
+Health check from inside the cluster:
+  kubectl exec -n {{ .Release.Namespace }} deploy/{{ include "dex.fullname" . }} -- \
+    wget -qO- http://127.0.0.1:{{ .Values.service.port }}/dex/healthz
+
+Configured static clients:
+{{- range .Values.dex.staticClients }}
+  - {{ .id }}
+{{- end }}
+
+Next steps:
+  1. Point your browser at the public URL and sign in with GitHub.
+  2. Verify the certificate:
+       kubectl get certificate -n {{ .Release.Namespace }}

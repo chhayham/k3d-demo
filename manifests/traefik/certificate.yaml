@@ -1,3 +1,17 @@
+# ---------------------------------------------------------------------------
+# Shared TLS for the Traefik ingress gateway — SINGLE SOURCE OF TRUTH.
+#
+# One self-signed wildcard certificate for *.localhost covers EVERY service
+# routed through Traefik (dex, argocd, kargo, prometheus, loki, ...).
+# Per-service certificates are intentionally NOT used: each service only
+# declares an HTTPRoute with its *.localhost hostname and relies on this cert
+# for TLS termination at the gateway's `websecure` listener
+# (see helm/traefik/values.yaml -> gateway.listeners.websecure.certificateRefs).
+#
+# The secret produced here (localhost-tls) is also used by the README workflow
+# to trust *.localhost in your OS/browser: extract ca.crt from the secret and
+# add it to your system trust store.
+# ---------------------------------------------------------------------------
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -6,7 +20,8 @@ metadata:
 spec:
   isCA: true
   commonName: localhost
-  secretName: localhost-secret
+  # Secret that the gateway's websecure listener references.
+  secretName: localhost-tls
   privateKey:
     algorithm: ECDSA
     size: 256
@@ -15,11 +30,6 @@ spec:
   ipAddresses:
     - 127.0.0.1
     - 0.0.0.0
-  nameConstraints:
-    critical: true
-    permitted:
-      ipRanges: 
-        - "10.10.0.0/16"
   issuerRef:
     name: selfsigned-cluster-issuer
     kind: ClusterIssuer
