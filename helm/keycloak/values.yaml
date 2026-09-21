@@ -1,0 +1,129 @@
+# -- Keycloak server image (quickstart default).
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "26.7.4"
+  pullPolicy: IfNotPresent
+
+# -- Number of Keycloak replicas (StatefulSet). The quickstart uses two so
+#    rolling updates restart pods one-by-one without losing the in-memory
+#    (JGroups) information stored redundantly in both pods. Use one to save
+#    resources on a local cluster.
+replicas: 2
+
+# -- Bootstrap admin credentials (KC_BOOTSTRAP_ADMIN_USERNAME/PASSWORD).
+#    Used to create the realm, the Argo CD / Headlamp OIDC clients and the
+#    GitHub identity provider. Override for anything beyond a local demo.
+admin:
+  username: "admin"
+  password: "admin"
+
+# -- Keycloak server environment (quickstart defaults).
+keycloak:
+  # -- Respect the proxy headers forwarded by the reverse proxy (Traefik).
+  proxyHeaders: "xforwarded"
+  # -- Serve plain HTTP; TLS terminates at the gateway.
+  httpEnabled: "true"
+  # -- In this explorative setup, no strict hostname is set. For production,
+  #    set a hostname for a secure setup.
+  hostnameStrict: "false"
+  # -- Exposes /health/started|ready|live on the management port (9000).
+  healthEnabled: "true"
+  # -- Infinispan cache with JGroups node discovery (see POD_IP env).
+  cache: "ispn"
+  # -- Extra environment variables appended after the built-in ones.
+  extraEnv: []
+  #  - name: KC_LOG_LEVEL
+  #    value: INFO
+
+service:
+  type: ClusterIP
+  port: 8080
+  annotations: {}
+
+# -- Headless Service used as the StatefulSet `serviceName` so pods get
+#    stable DNS names for JGroups discovery.
+discoveryService:
+  enabled: true
+
+# -- Keycloak container resources (quickstart defaults).
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2000Mi
+  requests:
+    cpu: 500m
+    memory: 1700Mi
+
+# -- Probes hit the management interface (requires healthEnabled: true).
+probes:
+  startup:
+    path: /health/started
+    port: 9000
+    periodSeconds: 1
+    failureThreshold: 600
+  readiness:
+    path: /health/ready
+    port: 9000
+    periodSeconds: 10
+    failureThreshold: 3
+  liveness:
+    path: /health/live
+    port: 9000
+    periodSeconds: 10
+    failureThreshold: 3
+
+podAnnotations: {}
+podLabels: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# -- PostgreSQL that Keycloak stores its data in (quickstart default:
+#    ephemeral emptyDir storage for testing — data is lost when the pod
+#    stops).
+postgres:
+  enabled: true
+  image:
+    repository: mirror.gcr.io/postgres
+    tag: "17"
+    pullPolicy: IfNotPresent
+  username: "keycloak"
+  # -- Used for both POSTGRES_PASSWORD and KC_DB_PASSWORD.
+  password: "keycloak"
+  database: "keycloak"
+  logStatement: "all"
+  service:
+    port: 5432
+    annotations: {}
+  resources: {}
+  storage:
+    # -- false = emptyDir (quickstart default). true = PVC (needs a storage
+    #    class).
+    enabled: false
+    size: 1Gi
+    class: ""
+
+# -- Database connection settings passed to Keycloak (KC_DB_*).
+db:
+  provider: "postgres"
+  # -- Hostname Keycloak uses to reach the database (matches the postgres
+  #    Service name rendered by this chart).
+  host: "postgres"
+  database: "keycloak"
+
+# -- Gateway API HTTPRoute (optional). Disabled by default so the chart
+#    renders exactly like the quickstarts reference. Set enabled: true to
+#    route https://keycloak.localhost through the shared Traefik gateway
+#    (`websecure` listener; the *.localhost wildcard cert comes from
+#    manifests/traefik/certificate.yaml).
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - "keycloak.localhost"
+  # -- Optional HTTPRoute filters.
+  filters: []

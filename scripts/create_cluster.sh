@@ -119,13 +119,20 @@ helm upgrade --install traefik traefik/traefik \
 # Install Dex
 # The local chart (./helm/dex) owns the cert-manager Certificate and the
 # Gateway API HTTPRoute, so no separate manifests/dex/*.yaml files are needed.
-helm lint helm/dex
+# helm lint helm/dex
 
-helm upgrade --install dex ./helm/dex \
-  --namespace dex \
+# helm upgrade --install dex ./helm/dex \
+#   --namespace dex \
+#   --create-namespace \
+#   --set dex.github.clientId=$GITHUB_CLIENT_ID \
+#   --set dex.github.clientSecret=$GITHUB_CLIENT_SECRET \
+#   --wait
+
+# Install Keycloak
+helm upgrade keycloak ./helm/keycloak \
+  --namespace keycloak \
   --create-namespace \
-  --set dex.github.clientId=$GITHUB_CLIENT_ID \
-  --set dex.github.clientSecret=$GITHUB_CLIENT_SECRET \
+  --set httpRoute.enabled=true \
   --wait
 
 

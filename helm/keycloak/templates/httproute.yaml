@@ -1,0 +1,32 @@
+{{- if .Values.httpRoute.enabled }}
+# Gateway API HTTPRoute. Routes HTTPS traffic from Traefik to the Keycloak
+# Service. TLS termination happens CENTRALLY at the Gateway (Traefik
+# `websecure` listener) using the shared *.localhost wildcard cert
+# (localhost-tls, produced by cert-manager via
+# manifests/traefik/certificate.yaml). This chart intentionally does NOT
+# create a per-service Certificate.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "keycloak.fullname" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  {{- with .Values.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml .Values.httpRoute.parentRefs | nindent 4 }}
+  hostnames:
+    {{- toYaml .Values.httpRoute.hostnames | nindent 4 }}
+  rules:
+    - backendRefs:
+        - name: {{ include "keycloak.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 1
+      {{- with .Values.httpRoute.filters }}
+      filters:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

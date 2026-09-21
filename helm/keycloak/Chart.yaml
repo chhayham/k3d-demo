@@ -1,0 +1,17 @@
+apiVersion: v2
+name: keycloak
+description: Helm chart to deploy the Keycloak OpenID Connect identity provider (with a bundled PostgreSQL for the quickstart-style ephemeral setup), based on the keycloak-quickstarts kubernetes/keycloak.yaml reference
+type: application
+version: 0.1.0
+appVersion: "26.7.4"
+keywords:
+  - keycloak
+  - oidc
+  - openid-connect
+  - identity-provider
+  - authentication
+  - sso
+home: https://www.keycloak.org/
+sources:
+  - https://github.com/keycloak/keycloak
+  - https://github.com/keycloak/keycloak-quickstarts/tree/main/kubernetes

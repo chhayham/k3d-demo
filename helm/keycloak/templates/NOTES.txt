@@ -1,0 +1,19 @@
+Keycloak has been installed ({{ int .Values.replicas }} replica{{ if eq (int .Values.replicas) 1 }}{{ else }}s{{ end }}) with PostgreSQL for its data store.
+
+Admin console (via Traefik, when httpRoute.enabled=true):
+  https://keycloak.localhost
+  admin user: {{ .Values.admin.username }}
+  admin password: {{ .Values.admin.password }}
+
+In-cluster health check:
+  kubectl exec -n {{ .Release.Namespace }} statefulset/{{ include "keycloak.fullname" . }} -- \
+    curl -s http://127.0.0.1:9000/health/ready
+
+Next steps:
+  1. Create a realm, e.g. `argocd`.
+  2. Create OIDC clients (confidential, client authentication ON) for
+     Argo CD and Headlamp, and note their client secrets.
+  3. Add a GitHub identity provider (provider: github) with your OAuth App
+     client id/secret.
+  4. Point Argo CD / Headlamp at the issuer:
+     https://keycloak.localhost/realms/<realm>
