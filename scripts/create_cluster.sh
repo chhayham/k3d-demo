@@ -38,111 +38,115 @@ else
     --wait
 fi
 
+terraform init
+terraform validate
+terraform apply -var cluster_name=$cluster_name -var kubeconfig=~/.kube/config -auto-approve
+
 # Install cert-manager, trust-manager, and self-signed-cert-issuer
 # install gateway api crds for services that need a gateway
-kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/$gateway_api_crds_version/standard-install.yaml
+# kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/$gateway_api_crds_version/standard-install.yaml
 
-helm upgrade --install cert-manager cert-manager \
-  --repo https://charts.jetstack.io \
-  --version $cert_manager_chart_version \
-  --namespace cert-manager \
-  --create-namespace \
-  -f helm/cert-manager/values.yaml \
-  --wait
+# helm upgrade --install cert-manager cert-manager \
+#   --repo https://charts.jetstack.io \
+#   --version $cert_manager_chart_version \
+#   --namespace cert-manager \
+#   --create-namespace \
+#   -f helm/cert-manager/values.yaml \
+#   --wait
 
-helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager \
-  --namespace cert-manager \
-  --wait
-kubectl apply -f manifests/cert-manager/self-signed-cert-issuer.yaml
-kubectl apply -f manifests/cert-manager/trust-bundle.yaml
+# helm upgrade --install trust-manager oci://quay.io/jetstack/charts/trust-manager \
+#   --namespace cert-manager \
+#   --wait
+# kubectl apply -f manifests/cert-manager/self-signed-cert-issuer.yaml
+# kubectl apply -f manifests/cert-manager/trust-bundle.yaml
 
-# Install Traefik
+# # Install Traefik
 
-helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
+# helm show crds traefik/traefik | kubectl apply --server-side --force-conflicts -f -
 
-helm repo add traefik https://traefik.github.io/charts
-helm upgrade --install traefik traefik/traefik \
-  --create-namespace \
-  --namespace traefik \
-  --version $traefik_chart_version \
-  -f helm/traefik/values.yaml \
-  --wait
+# helm repo add traefik https://traefik.github.io/charts
+# helm upgrade --install traefik traefik/traefik \
+#   --create-namespace \
+#   --namespace traefik \
+#   --version $traefik_chart_version \
+#   -f helm/traefik/values.yaml \
+#   --wait
 
-# Install ArgoCD, Rollouts, and Kargo
-helm upgrade --install argocd argo-cd \
-  --repo https://argoproj.github.io/argo-helm \
-  --version $argo_cd_chart_version \
-  --namespace argocd \
-  --create-namespace \
-  -f helm/argocd/values.yaml \
-  --wait
+# # Install ArgoCD, Rollouts, and Kargo
+# helm upgrade --install argocd argo-cd \
+#   --repo https://argoproj.github.io/argo-helm \
+#   --version $argo_cd_chart_version \
+#   --namespace argocd \
+#   --create-namespace \
+#   -f helm/argocd/values.yaml \
+#   --wait
 
-helm upgrade --install argo-rollouts argo-rollouts \
-  --repo https://argoproj.github.io/argo-helm \
-  --version $argo_rollouts_chart_version \
-  --create-namespace \
-  --namespace argo-rollouts \
-  --wait
+# helm upgrade --install argo-rollouts argo-rollouts \
+#   --repo https://argoproj.github.io/argo-helm \
+#   --version $argo_rollouts_chart_version \
+#   --create-namespace \
+#   --namespace argo-rollouts \
+#   --wait
 
-# Password is 'admin'
-helm upgrade --install kargo \
-  oci://ghcr.io/akuity/kargo-charts/kargo \
-  --version=$kargo_chart_version \
-  --namespace kargo \
-  --create-namespace \
-  -f helm/kargo/values.yaml \
-  --wait
+# # Password is 'admin'
+# helm upgrade --install kargo \
+#   oci://ghcr.io/akuity/kargo-charts/kargo \
+#   --version=$kargo_chart_version \
+#   --namespace kargo \
+#   --create-namespace \
+#   -f helm/kargo/values.yaml \
+#   --wait
   
-helm upgrade --install kargo-httproute ./helm/httproute \
-  -f manifests/httproutes/kargo-values.yaml \
-  --wait
+# helm upgrade --install kargo-httproute ./helm/httproute \
+#   -f manifests/httproutes/kargo-values.yaml \
+#   --wait
 
-# Install Loki before kube-prometheus-stack
- helm repo add grafana-community https://grafana-community.github.io/helm-charts
- helm upgrade --install loki grafana-community/loki \
-   --version $loki_chart_version \
-   -f helm/loki/values.yaml \
-   --namespace monitoring \
-   --create-namespace \
-   --wait
+# # Install Loki before kube-prometheus-stack
+#  helm repo add grafana-community https://grafana-community.github.io/helm-charts
+#  helm upgrade --install loki grafana-community/loki \
+#    --version $loki_chart_version \
+#    -f helm/loki/values.yaml \
+#    --namespace monitoring \
+#    --create-namespace \
+#    --wait
 
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-  --version $kube_prometheus_stack_chart_version \
-  --create-namespace \
-  --namespace monitoring \
-  -f helm/prometheus/values.yaml \
-  --wait
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+#   --version $kube_prometheus_stack_chart_version \
+#   --create-namespace \
+#   --namespace monitoring \
+#   -f helm/prometheus/values.yaml \
+#   --wait
 
-helm upgrade --install monitoring-httproute ./helm/httproute \
-  -f manifests/httproutes/monitoring-values.yaml \
-  --wait
+# helm upgrade --install monitoring-httproute ./helm/httproute \
+#   -f manifests/httproutes/monitoring-values.yaml \
+#   --wait
 
-# Install Kubernetes Event-Driven Autoscaling(KEDA)
-helm repo add kedacore https://kedacore.github.io/charts  
-helm upgrade --install keda kedacore/keda \
-  --version $keda_chart_version \
-  --namespace keda \
-  --create-namespace \
-  -f helm/keda/values.yaml \
-  --wait
+# # Install Kubernetes Event-Driven Autoscaling(KEDA)
+# helm repo add kedacore https://kedacore.github.io/charts  
+# helm upgrade --install keda kedacore/keda \
+#   --version $keda_chart_version \
+#   --namespace keda \
+#   --create-namespace \
+#   -f helm/keda/values.yaml \
+#   --wait
 
-# Install Fluent-Bit
-helm repo add fluent https://fluent.github.io/helm-charts
+# # Install Fluent-Bit
+# helm repo add fluent https://fluent.github.io/helm-charts
 
-helm upgrade --install fluent-bit fluent/fluent-bit \
-  --version=0.58.2 \
-  --create-namespace \
-  --namespace monitoring \
-  -f helm/fluent/fluent-bit/values.yaml \
-  --wait
+# helm upgrade --install fluent-bit fluent/fluent-bit \
+#   --version=0.58.2 \
+#   --create-namespace \
+#   --namespace monitoring \
+#   -f helm/fluent/fluent-bit/values.yaml \
+#   --wait
 
-# Install Dex
-helm repo add dexidp https://charts.dexidp.io
+# # Install Dex
+# helm repo add dexidp https://charts.dexidp.io
 
-helm upgrade --install dex dexidp/dex \
-  --version $dex_chart_version \
-  --create-namespace \
-  --namespace dex \
-  -f helm/dex/values.yaml \
-  --wait  
+# helm upgrade --install dex dexidp/dex \
+#   --version $dex_chart_version \
+#   --create-namespace \
+#   --namespace dex \
+#   -f helm/dex/values.yaml \
+#   --wait  
