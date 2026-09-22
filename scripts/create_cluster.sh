@@ -8,21 +8,21 @@ set -euox pipefail
 cluster_name="${1:-demo}"
 nodes="${2:-3}"
 
-argo_cd_chart_version=9.4.3
-argo_rollouts_chart_version=2.40.6
-kargo_chart_version=1.11.2
-cert_manager_chart_version=v1.21.1
-calico_chart_version=v3.31.4
-kube_prometheus_stack_chart_version=88.5.4
-traefik_chart_version=41.5.0
-keda_chart_version=2.20.2
-loki_chart_version=18.12.1
-fluent_bit_chart_version=0.58.2
-dex_chart_version=0.24.1
-
-
 rancher_kubernetes_version=v1.36.4-k3s1
-gateway_api_crds_version=v1.6.1
+
+# argo_cd_chart_version=9.4.3
+# argo_rollouts_chart_version=2.40.6
+# kargo_chart_version=1.11.2
+# cert_manager_chart_version=v1.21.1
+# calico_chart_version=v3.31.4
+# kube_prometheus_stack_chart_version=88.5.4
+# traefik_chart_version=41.5.0
+# keda_chart_version=2.20.2
+# loki_chart_version=18.12.1
+# fluent_bit_chart_version=0.58.2
+# dex_chart_version=0.24.1
+
+# gateway_api_crds_version=v1.6.1
 
 if k3d cluster list 2>/dev/null | awk '{print $1}' | grep -qx "$cluster_name"; then
   echo "k3d cluster '$cluster_name' already exists"
@@ -38,9 +38,9 @@ else
     --wait
 fi
 
-terraform init
-terraform validate
-terraform apply -var cluster_name=$cluster_name -var kubeconfig=~/.kube/config -auto-approve
+cd terraform && terraform init \
+   && terraform validate \
+   && terraform apply -var cluster_name=$cluster_name -var kubeconfig=~/.kube/config -auto-approve
 
 # Install cert-manager, trust-manager, and self-signed-cert-issuer
 # install gateway api crds for services that need a gateway
