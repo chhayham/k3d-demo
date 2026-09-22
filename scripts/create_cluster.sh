@@ -38,6 +38,10 @@ else
     --wait
 fi
 
+terraform init
+terraform validate
+terraform apply -var cluster_name=$cluster_name -var kubeconfig=~/.kube/config -auto-approve
+
 # Install cert-manager, trust-manager, and self-signed-cert-issuer
 # install gateway api crds for services that need a gateway
 # kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/$gateway_api_crds_version/standard-install.yaml
