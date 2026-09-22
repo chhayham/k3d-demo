@@ -6,7 +6,7 @@
 # and does NOT create the ArgoCD Application manifests (those are a separate
 # GitOps step: scripts/deploy_argocd_apps.sh).
 #
-# State is stored locally under this directory (terraform/terraform.tfstate),
+# State is stored locally in a dedicated folder (terraform/terraform_state/terraform.tfstate),
 # so it can be checked out / shared per-cluster without a remote backend.
 terraform {
   required_version = ">= 1.16.3"
@@ -26,8 +26,10 @@ terraform {
     }
   }
 
-  # Store state in this directory (terraform/terraform.tfstate).
+  # Store state in the terraform_state/ folder (terraform/terraform_state/terraform.tfstate).
+  # The local backend path is relative to the working directory you run terraform from,
+  # i.e. this terraform/ directory.
   backend "local" {
-    path = "terraform.tfstate"
+    path = "terraform_state/terraform.tfstate"
   }
 }
