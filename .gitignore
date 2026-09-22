@@ -2,3 +2,11 @@
 .vscode/
 /.idea/
 node_modules/
+tmp
+
+# Terraform
+.terraform/          # provider plugins (local cache, re-created on init)
+*.tfstate            # state files (per-cluster)
+*.tfstate.*          # state backups / lock files
+crash.log
+crash.*.log
