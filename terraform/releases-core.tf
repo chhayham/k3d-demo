@@ -9,7 +9,7 @@ resource "helm_release" "traefik" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.traefik)]
-  depends_on       = [null_resource.gateway_api_crds]
+  depends_on       = [null_resource.gateway_api_crds, helm_release.cert_manager, helm_release.trust_manager]
 }
 
 resource "helm_release" "argocd" {
@@ -21,7 +21,7 @@ resource "helm_release" "argocd" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.argocd)]
-  depends_on       = [null_resource.gateway_api_crds]
+  depends_on       = [null_resource.gateway_api_crds, helm_release.traefik]
 }
 
 resource "helm_release" "argo_rollouts" {

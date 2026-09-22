@@ -20,9 +20,9 @@ variable "kubeconfig" {
 }
 
 variable "helm_timeout_minutes" {
-  description = "Timeout (minutes) for each Helm install/upgrade operation."
+  description = "Timeout (seconds) for each Helm install/upgrade operation."
   type        = number
-  default     = 15
+  default     = 900 # 15 minutes
 }
 
 # Chart versions (defaults mirror scripts/create_cluster.sh). See variables-charts.tf for the rest.

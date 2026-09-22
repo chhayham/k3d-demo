@@ -9,7 +9,7 @@ resource "helm_release" "kargo" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.kargo)]
-  depends_on       = [null_resource.gateway_api_crds]
+  depends_on       = [null_resource.gateway_api_crds, helm_release.argocd]
 }
 
 # kargo-httproute: local chart installed in the default namespace (the script
@@ -18,7 +18,7 @@ resource "helm_release" "kargo" {
 resource "helm_release" "kargo_httproute" {
   name             = "kargo-httproute"
   chart            = local.local_httproute
-  namespace        = "default"
+  namespace        = "kargo"
   create_namespace = false
   timeout          = var.helm_timeout_minutes
   values           = [file(local.kargo_hrp)]

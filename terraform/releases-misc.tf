@@ -9,6 +9,7 @@ resource "helm_release" "keda" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.keda)]
+  depends_on       = [helm_release.kube_prometheus_stack]
 }
 
 resource "helm_release" "fluent_bit" {
@@ -20,6 +21,7 @@ resource "helm_release" "fluent_bit" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.fluent_bit)]
+  depends_on       = [helm_release.loki]
 }
 
 resource "helm_release" "dex" {
@@ -31,4 +33,5 @@ resource "helm_release" "dex" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.dex)]
+  depends_on       = [helm_release.kube_prometheus_stack]
 }

@@ -13,6 +13,11 @@ resource "helm_release" "cert_manager" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.cert_manager)]
+  depends_on       = [null_resource.gateway_api_crds]
+  set = [{
+    name  = "webhook.securePort"
+    value = "10260" # Often fixes EKS/private cluster restrictions
+  }]
 }
 
 resource "helm_release" "trust_manager" {

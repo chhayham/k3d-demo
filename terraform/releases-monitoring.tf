@@ -10,6 +10,7 @@ resource "helm_release" "loki" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.loki)]
+  depends_on       = [helm_release.kube_prometheus_stack]
 }
 
 resource "helm_release" "kube_prometheus_stack" {
@@ -21,7 +22,7 @@ resource "helm_release" "kube_prometheus_stack" {
   create_namespace = true
   timeout          = var.helm_timeout_minutes
   values           = [file(local.prometheus)]
-  depends_on       = [helm_release.loki]
+  depends_on       = [helm_release.cert_manager, null_resource.cert_manager_self_signed_cert_issuer]
 }
 
 # monitoring-httproute: local ./helm/httproute chart in the default namespace;
@@ -29,7 +30,7 @@ resource "helm_release" "kube_prometheus_stack" {
 resource "helm_release" "monitoring_httproute" {
   name             = "monitoring-httproute"
   chart            = local.local_httproute
-  namespace        = "default"
+  namespace        = "monitoring"
   create_namespace = false
   timeout          = var.helm_timeout_minutes
   values           = [file(local.monitoring_hrp)]
