@@ -10,3 +10,4 @@ tmp
 *.tfstate.*          # state backups / lock files
 crash.log
 crash.*.log
+terraform/terraform_state/*
